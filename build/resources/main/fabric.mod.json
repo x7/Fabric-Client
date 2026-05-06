@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "fabricclient",
+  "version": "1.0-SNAPSHOT",
+  "name": "FabricClient",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/fabricclient/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-datagen": [
+      "org.awesome.fabricclient.client.FabricclientDataGenerator"
+    ],
+    "client": [
+      "org.awesome.fabricclient.client.FabricclientClient"
+    ],
+    "main": [
+      "org.awesome.fabricclient.Fabricclient"
+    ]
+  },
+  "mixins": [
+    "fabricclient.mixins.json",
+    {
+      "config": "fabricclient.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.2",
+    "fabric-api": "*",
+    "minecraft": "26.1.2"
+  }
+}
