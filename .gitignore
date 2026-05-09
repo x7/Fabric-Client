@@ -3,3 +3,5 @@ build
 run
 LICENSE.txt
 todo.txt
+.gradle
+gradlew.bat
