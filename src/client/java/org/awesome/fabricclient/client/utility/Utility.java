@@ -11,6 +11,6 @@ public class Utility {
             return false;
         }
 
-        return InputConstants.isKeyDown(minecraft.getWindow(),key.getValue());
+        return InputConstants.isKeyDown(minecraft.getWindow(), key.getValue());
     }
 }

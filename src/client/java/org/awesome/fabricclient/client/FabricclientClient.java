@@ -8,6 +8,8 @@ import net.minecraft.client.Minecraft;
 import org.awesome.fabricclient.client.gui.ClickGui;
 import org.lwjgl.glfw.GLFW;
 
+// Look into packet listening
+
 public class FabricclientClient implements ClientModInitializer {
     private static final KeyMapping OPEN_CLICK_GUI = KeyMappingHelper.registerKeyMapping(
             new KeyMapping("key.fabricclient.click_gui", GLFW.GLFW_KEY_RIGHT_SHIFT, KeyMapping.Category.MISC)
