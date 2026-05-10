@@ -3,11 +3,12 @@ package org.awesome.fabricclient.client.module.modules.combat;
 import org.awesome.fabricclient.client.module.Module;
 import org.awesome.fabricclient.client.module.settings.BooleanSetting;
 import org.awesome.fabricclient.client.module.settings.ModeSelectSetting;
+import org.awesome.fabricclient.client.module.settings.RangeSliderSetting;
 import org.awesome.fabricclient.client.module.settings.SliderSetting;
 
 public class KillAura extends Module {
     public final SliderSetting range = addSetting(new SliderSetting("Range", "Attack range", 3.5, 1.0, 6.0));
-    public final SliderSetting cps = addSetting(new SliderSetting("CPS", "Clicks per second", 12.0, 1.0, 20.0));
+    public final RangeSliderSetting cps = addSetting(new RangeSliderSetting("CPS", "Min/max clicks per second", 8.0, 12.0, 1.0, 20.0));
     public final ModeSelectSetting mode = addSetting(new ModeSelectSetting("Mode", "Aura mode", "Single", "Single", "Switch", "Multi"));
     public final BooleanSetting rotations = addSetting(new BooleanSetting("Rotations", "Rotate to target", true));
     public final BooleanSetting throughWalls = addSetting(new BooleanSetting("Through Walls", "Attack through walls", false));

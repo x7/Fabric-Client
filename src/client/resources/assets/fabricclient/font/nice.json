@@ -6,10 +6,10 @@
     },
     {
       "type": "ttf",
-      "file": "fabricclient:font/nice/regular.ttf",
+      "file": "fabricclient:nice/regular.ttf",
       "size": 9.0,
-      "oversample": 4.0,
-      "shift": [0.0, 0.0],
+      "oversample": 8.0,
+      "shift": [0.0, 1.0],
       "skip": []
     },
     {

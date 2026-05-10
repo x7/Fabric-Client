@@ -8,6 +8,9 @@ import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FontDescription;
+import net.minecraft.network.chat.Style;
+import net.minecraft.resources.Identifier;
 import org.awesome.fabricclient.client.module.Module;
 import org.awesome.fabricclient.client.module.ModuleManager;
 import org.awesome.fabricclient.client.module.settings.*;
@@ -16,27 +19,27 @@ import java.util.List;
 
 public class ClickGui extends Screen {
 
-    private static final int GUI_W          = 860;
-    private static final int GUI_H          = 480;
-    private static final int GUI_SETTINGS_W = 256;
+    private static final int GUI_W          = 640;
+    private static final int GUI_H          = 360;
+    private static final int GUI_SETTINGS_W = 192;
 
-    private static final int SIDEBAR_W   = 100;
-    private static final int SIDEBAR_PAD = 10;
-    private static final int CAT_H       = 30;
+    private static final int SIDEBAR_W   = 76;
+    private static final int SIDEBAR_PAD = 8;
+    private static final int CAT_H       = 24;
 
-    private static final int CONTENT_PAD = 14;
+    private static final int CONTENT_PAD = 10;
     private static final int CARD_COLS   = 2;
-    private static final int CARD_GAP    = 8;
-    private static final int CARD_H      = 52;
+    private static final int CARD_GAP    = 6;
+    private static final int CARD_H      = 40;
 
-    private static final int PILL_W      = 36;
-    private static final int PILL_H      = 16;
+    private static final int PILL_W      = 30;
+    private static final int PILL_H      = 14;
 
-    private static final float UI_SCALE = 1.5f;
-    private static final int   FIT_PAD  = 16;
+    private static final int UI_SCALE = 2;
+    private static final int FIT_PAD  = 12;
 
     private double guiScale = 1.0;
-    private double uiScale  = UI_SCALE;
+    private int    uiScale  = UI_SCALE;
 
     private int fbW() { return (int)(this.width  * guiScale); }
     private int fbH() { return (int)(this.height * guiScale); }
@@ -51,17 +54,17 @@ public class ClickGui extends Screen {
     private static final int C_TAB_BAR      = 0xF0141A26;
     private static final int C_TAB_ACTIVE   = 0xF0192134;
     private static final int C_TAB_HOVER    = 0xBB18202E;
-    private static final int C_TAB_TEXT     = 0xFFE8F0FF;
-    private static final int C_TAB_TEXT_DIM = 0xFF48587A;
+    private static final int C_TAB_TEXT     = 0xFFFFFFFF;
+    private static final int C_TAB_TEXT_DIM = 0xFF8A99B5;
     private static final int C_BORDER       = 0xFF1A2640;
     private static final int C_CARD         = 0xCC131C2E;
     private static final int C_CARD_HOVER   = 0xCC1C2840;
     private static final int C_CARD_BORDER  = 0xFF1C2A42;
     private static final int C_CARD_SEL     = 0xCC1E2C46;
     private static final int C_CARD_SEL_BRD = 0xFF2E4E78;
-    private static final int C_TEXT         = 0xFFDDE8FA;
-    private static final int C_TEXT_DIM     = 0xFF526070;
-    private static final int C_TEXT_DESC    = 0xFF788898;
+    private static final int C_TEXT         = 0xFFF2F6FF;
+    private static final int C_TEXT_DIM     = 0xFFB4C0D2;
+    private static final int C_TEXT_DESC    = 0xFF94A4BC;
     private static final int C_ACCENT       = 0xFFE8701A;
     private static final int C_SET_BG       = 0xF00E1422;
     private static final int C_SET_BORDER   = 0xFF1E3050;
@@ -78,10 +81,12 @@ public class ClickGui extends Screen {
     private int             moduleScroll   = 0;
     private int             settingsScroll = 0;
 
-    private boolean        draggingSlider = false;
-    private SliderSetting  activeSlider   = null;
-    private int            sliderBarX, sliderBarW;
-    private InputSetting   activeInput    = null;
+    private boolean             draggingSlider    = false;
+    private SliderSetting       activeSlider      = null;
+    private RangeSliderSetting  activeRangeSlider = null;
+    private boolean             draggingRangeMax  = false;
+    private int                 sliderBarX, sliderBarW;
+    private InputSetting        activeInput       = null;
 
     public ClickGui() {
         super(Component.literal("ClickGUI"));
@@ -95,10 +100,8 @@ public class ClickGui extends Screen {
 
         int needW = (settingsModule != null ? GUI_W + GUI_SETTINGS_W : GUI_W) + FIT_PAD * 2;
         int needH = GUI_H + FIT_PAD * 2;
-        double fit = Math.min(1.0,
-                Math.min(fbW() / (double)(needW * UI_SCALE),
-                         fbH() / (double)(needH * UI_SCALE)));
-        uiScale = UI_SCALE * fit;
+        int kMax = Math.max(1, Math.min(fbW() / needW, fbH() / needH));
+        uiScale = Math.min(UI_SCALE, kMax);
 
         Matrix3x2fStack ps = g.pose();
         ps.pushMatrix();
@@ -200,12 +203,12 @@ public class ClickGui extends Screen {
 
         String bind = "NONE";
         int tagX = x + 10 + niceW(mod.getName()) + 6;
-        g.fill(tagX - 2, y + 7, tagX + niceW(bind) + 3, y + 19, 0x330D1828);
-        g.text(this.font, nice(bind), tagX, y + 9, 0xFF334560, false);
+        g.fill(tagX - 2, y + 7, tagX + niceW(bind) + 3, y + 19, 0x55101C30);
+        g.text(this.font, nice(bind), tagX, y + 9, 0xFF6E7E96, false);
 
         String desc = mod.getDescription();
         if (desc != null && !desc.isEmpty()) {
-            g.text(this.font, nice(trimW(desc, w - PILL_W - 22)), x + 10, y + 28, C_TEXT_DESC, false);
+            g.text(this.font, nice(trimW(desc, w - PILL_W - 22)), x + 10, y + 22, C_TEXT_DESC, false);
         }
 
         drawPill(g, mod.isEnabled(), x + w - PILL_W - 8, y + CARD_H / 2 - PILL_H / 2);
@@ -214,18 +217,30 @@ public class ClickGui extends Screen {
     private void drawPill(GuiGraphicsExtractor g, boolean on, int x, int y) {
         int tw = PILL_W, th = PILL_H;
 
+        if (on) {
+            drawCapsule(g, x - 1, y - 1, tw + 2, th + 2, 0x33E8701A);
+            drawCapsule(g, x - 2, y - 2, tw + 4, th + 4, 0x18E8701A);
+        }
+
         drawCapsule(g, x,     y + 2, tw,     th, 0x44000000);
         drawCapsule(g, x + 1, y + 3, tw - 2, th, 0x18000000);
 
-        int track = on ? 0xFFE8701A : 0xFF2B354A;
+        int track = on ? 0xFFE8701A : 0xFF1B2434;
         drawCapsule(g, x, y, tw, th, track);
+
+        if (!on) drawCapsule(g, x + 1, y + 1, tw - 2, th - 2, 0x18000000);
+
+        drawCapsule(g, x + 2, y + 1, tw - 4, 1, on ? 0x66FFFFFF : 0x1AFFFFFF);
+        drawCapsule(g, x + 2, y + th - 2, tw - 4, 1, 0x33000000);
 
         int kSize = th - 4;
         int kx = on ? x + tw - kSize - 2 : x + 2;
         int ky = y + 2;
-        drawCapsule(g, kx, ky + 1, kSize, kSize, 0x55000000);
-        drawCapsule(g, kx, ky + 2, kSize, kSize, 0x22000000);
+        drawCapsule(g, kx, ky + 2, kSize, kSize, 0x66000000);
+        drawCapsule(g, kx, ky + 1, kSize, kSize, 0x22000000);
         drawCapsule(g, kx, ky,     kSize, kSize, 0xFFFFFFFF);
+        drawCapsule(g, kx + 1, ky, kSize - 2, 1, 0x55FFFFFF);
+        drawCapsule(g, kx + 1, ky + kSize - 1, kSize - 2, 1, 0x22000000);
     }
 
     private void renderSettingsPanel(GuiGraphicsExtractor g, int px, int py, int gh, int mx, int my) {
@@ -239,7 +254,11 @@ public class ClickGui extends Screen {
         g.fill(px, py + 27, px + sw, py + 28, C_BORDER);
         g.fill(px, py + 26, px + sw, py + 28, C_ACCENT);
         g.text(this.font, nice(settingsModule.getName()), px + 8, py + 9, C_TEXT, true);
-        g.text(this.font, nice("×"), px + sw - 14, py + 9, C_TEXT_DIM, false);
+
+        int closeX = px + sw - 22, closeY = py + 6, closeS = 16;
+        boolean closeHov = isIn(mx, my, closeX, closeY, closeS, closeS);
+        if (closeHov) drawCapsule(g, closeX, closeY, closeS, closeS, 0x22FFFFFF);
+        g.text(this.font, nice("×"), px + sw - 14, py + 9, closeHov ? C_TEXT : C_TEXT_DIM, closeHov);
 
         int contentY = py + 28;
         int contentH = gh - 28;
@@ -275,7 +294,9 @@ public class ClickGui extends Screen {
     }
 
     private int settingH(Setting<?> s) {
-        return (s instanceof SliderSetting) ? 42 : 30;
+        if (s instanceof SliderSetting)      return 42;
+        if (s instanceof RangeSliderSetting) return 42;
+        return 30;
     }
 
     private void drawSetting(GuiGraphicsExtractor g, Setting<?> s, int x, int y, int w, boolean hov) {
@@ -287,7 +308,7 @@ public class ClickGui extends Screen {
         int sliderTextY = y + 8;
 
         if (s instanceof BooleanSetting b) {
-            g.text(this.font, nice(b.getName()), x + 4, textY, C_TEXT_DIM, false);
+            g.text(this.font, nice(b.getName()), x + 4, textY, C_TEXT_DIM, true);
             drawPill(g, b.getValue(), x + w - PILL_W - 4, y + sh / 2 - PILL_H / 2);
 
         } else if (s instanceof SliderSetting sl) {
@@ -295,21 +316,43 @@ public class ClickGui extends Screen {
             int bx = x + 4, bw = w - 8, by = y + 28;
             int knob = bx + (int)(bw * pct);
             String val = String.format("%.1f", sl.getValue());
-            g.text(this.font, nice(sl.getName()), x + 4, sliderTextY, C_TEXT_DIM, false);
+            g.text(this.font, nice(sl.getName()), x + 4, sliderTextY, C_TEXT_DIM, true);
             g.text(this.font, nice(val), x + w - niceW(val) - 4, sliderTextY, C_TEXT, true);
-            g.fill(bx, by,     bx + bw, by + 4, C_SLIDER_BG);
-            g.fill(bx, by,     knob,    by + 4, C_SLIDER_FILL);
-            g.fill(knob - 4, by - 3, knob + 4, by + 7, C_SLIDER_KNOB);
+            drawCapsule(g, bx, by,     bw,        4, C_SLIDER_BG);
+            drawCapsule(g, bx, by,     knob - bx, 4, C_SLIDER_FILL);
+            drawCapsule(g, knob - 5, by - 2, 10, 10, 0x55000000);
+            drawCapsule(g, knob - 5, by - 1, 10, 10, 0x1C000000);
+            drawCapsule(g, knob - 5, by - 3, 10, 10, C_SLIDER_KNOB);
+            drawCapsule(g, knob - 4, by - 3, 8, 1, 0x55FFFFFF);
+
+        } else if (s instanceof RangeSliderSetting rs) {
+            double range = rs.getMax() - rs.getMin();
+            double pctMin = (rs.getMinValue() - rs.getMin()) / range;
+            double pctMax = (rs.getMaxValue() - rs.getMin()) / range;
+            int bx = x + 4, bw = w - 8, by = y + 28;
+            int knobMin = bx + (int)(bw * pctMin);
+            int knobMax = bx + (int)(bw * pctMax);
+            String val = String.format("%.1f - %.1f", rs.getMinValue(), rs.getMaxValue());
+            g.text(this.font, nice(rs.getName()), x + 4, sliderTextY, C_TEXT_DIM, true);
+            g.text(this.font, nice(val), x + w - niceW(val) - 4, sliderTextY, C_TEXT, true);
+            drawCapsule(g, bx,      by, bw,                   4, C_SLIDER_BG);
+            drawCapsule(g, knobMin, by, knobMax - knobMin,    4, C_SLIDER_FILL);
+            for (int knob : new int[]{knobMin, knobMax}) {
+                drawCapsule(g, knob - 5, by - 2, 10, 10, 0x55000000);
+                drawCapsule(g, knob - 5, by - 1, 10, 10, 0x1C000000);
+                drawCapsule(g, knob - 5, by - 3, 10, 10, C_SLIDER_KNOB);
+                drawCapsule(g, knob - 4, by - 3,  8,  1, 0x55FFFFFF);
+            }
 
         } else if (s instanceof ModeSelectSetting m) {
-            g.text(this.font, nice(m.getName()), x + 4, textY, C_TEXT_DIM, false);
+            g.text(this.font, nice(m.getName()), x + 4, textY, C_TEXT_DIM, true);
             String val = m.getValue();
             g.text(this.font, nice(val), x + w - niceW(val) - 4, textY, C_TEXT, true);
 
         } else if (s instanceof InputSetting inp) {
             boolean active = inp == activeInput;
             String val = trimW(active ? inp.getValue() + "|" : inp.getValue(), w / 2);
-            g.text(this.font, nice(inp.getName()), x + 4, textY, C_TEXT_DIM, false);
+            g.text(this.font, nice(inp.getName()), x + 4, textY, C_TEXT_DIM, true);
             g.text(this.font, nice(val), x + w - niceW(val) - 4, textY,
                     active ? C_TEXT : C_TEXT_DIM, active);
         }
@@ -344,7 +387,7 @@ public class ClickGui extends Screen {
         if (settingsModule != null) {
             int px = gx + gw;
             int sw = settingsW();
-            if (isIn(mx, my, px + sw - 16, gy + 7, 12, 12)) {
+            if (isIn(mx, my, px + sw - 22, gy + 6, 16, 16)) {
                 settingsModule = null;
                 settingsScroll = 0;
                 return true;
@@ -419,20 +462,34 @@ public class ClickGui extends Screen {
             sliderBarX     = barX + 4;
             sliderBarW     = barW - 8;
             updateSlider(mx);
+        } else if (s instanceof RangeSliderSetting rs) {
+            sliderBarX        = barX + 4;
+            sliderBarW        = barW - 8;
+            activeRangeSlider = rs;
+            double range = rs.getMax() - rs.getMin();
+            double pctMin = (rs.getMinValue() - rs.getMin()) / range;
+            double pctMax = (rs.getMaxValue() - rs.getMin()) / range;
+            int knobMin = sliderBarX + (int)(sliderBarW * pctMin);
+            int knobMax = sliderBarX + (int)(sliderBarW * pctMax);
+            draggingRangeMax = Math.abs(mx - knobMax) <= Math.abs(mx - knobMin);
+            updateRangeSlider(mx);
         } else if (s instanceof InputSetting inp)
             activeInput = (activeInput == inp) ? null : inp;
     }
 
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
-        if (draggingSlider && activeSlider != null) { updateSlider(event.x() * guiScale / uiScale); return true; }
+        double mx = event.x() * guiScale / uiScale;
+        if (draggingSlider && activeSlider != null)        { updateSlider(mx);      return true; }
+        if (activeRangeSlider != null)                     { updateRangeSlider(mx); return true; }
         return super.mouseDragged(event, dx, dy);
     }
 
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
-        draggingSlider = false;
-        activeSlider   = null;
+        draggingSlider    = false;
+        activeSlider      = null;
+        activeRangeSlider = null;
         return super.mouseReleased(event);
     }
 
@@ -463,6 +520,13 @@ public class ClickGui extends Screen {
         activeSlider.setValue(activeSlider.getMin() + pct * (activeSlider.getMax() - activeSlider.getMin()));
     }
 
+    private void updateRangeSlider(double mx) {
+        double pct = Math.max(0, Math.min(1, (mx - sliderBarX) / sliderBarW));
+        double v = activeRangeSlider.getMin() + pct * (activeRangeSlider.getMax() - activeRangeSlider.getMin());
+        if (draggingRangeMax) activeRangeSlider.setMaxValue(v);
+        else                  activeRangeSlider.setMinValue(v);
+    }
+
     private int guiW() { return GUI_W; }
     private int guiH() { return GUI_H; }
 
@@ -488,18 +552,34 @@ public class ClickGui extends Screen {
         return text + "…";
     }
 
-    private Component nice(String s)  { return Component.literal(s); }
-    private int       niceW(String s) { return this.font.width(s); }
+    private static final Style NICE_STYLE = Style.EMPTY.withFont(
+            new FontDescription.Resource(Identifier.parse("fabricclient:nice")));
+
+    private Component nice(String s)  { return Component.literal(s).withStyle(NICE_STYLE); }
+    private int       niceW(String s) { return this.font.width(nice(s)); }
 
     private void drawCapsule(GuiGraphicsExtractor g, int x, int y, int w, int h, int color) {
-        int r = h / 2;
-        int rr = r * r;
+        if (w <= 0 || h <= 0) return;
+        double r = h / 2.0;
+        double rr = r * r;
+        int alpha = (color >>> 24) & 0xFF;
+        int rgb   = color & 0x00FFFFFF;
         for (int i = 0; i < h; i++) {
             double dy = i + 0.5 - r;
-            int off = (int)Math.round(Math.sqrt(Math.max(0, rr - dy * dy)));
-            int sx = r - off;
-            int ex = w - (r - off);
+            double off = Math.sqrt(Math.max(0.0, rr - dy * dy));
+            double leftEdge  = r - off;
+            double rightEdge = w - (r - off);
+            int sx = (int)Math.ceil(leftEdge);
+            int ex = (int)Math.floor(rightEdge);
             if (sx < ex) g.fill(x + sx, y + i, x + ex, y + i + 1, color);
+            if (sx > leftEdge) {
+                int a = (int)(alpha * (sx - leftEdge));
+                if (a > 0) g.fill(x + sx - 1, y + i, x + sx, y + i + 1, (a << 24) | rgb);
+            }
+            if (ex < rightEdge) {
+                int a = (int)(alpha * (rightEdge - ex));
+                if (a > 0) g.fill(x + ex, y + i, x + ex + 1, y + i + 1, (a << 24) | rgb);
+            }
         }
     }
 
