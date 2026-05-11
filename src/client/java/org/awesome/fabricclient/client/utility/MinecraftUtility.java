@@ -1,6 +1,5 @@
 package org.awesome.fabricclient.client.utility;
 
-import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.Connection;

@@ -1,6 +1,7 @@
 package org.awesome.fabricclient.client.module;
 
 import org.awesome.fabricclient.client.module.modules.combat.KillAura;
+import org.awesome.fabricclient.client.module.modules.movement.NoJumpDelay;
 import org.awesome.fabricclient.client.module.modules.movement.Sprint;
 import org.awesome.fabricclient.client.module.modules.visuals.GUI;
 
@@ -15,6 +16,7 @@ public class ModuleManager {
     private ModuleManager() {
         register(new KillAura());
         register(new Sprint());
+        register(new NoJumpDelay());
         register(new GUI());
     }
 
@@ -27,7 +29,23 @@ public class ModuleManager {
         modules.add(module);
     }
 
-    public List<Module> getModules() { return modules; }
+    public List<Module> getModules() {
+        return modules;
+    }
+
+    public Module getModule(Class<?> clazz) {
+        List<Module> modules = getModules();
+        Module returnModule = null;
+
+        for(Module module : modules) {
+            if(module.getClass() == clazz) {
+                returnModule = module;
+                break;
+            }
+        }
+
+        return returnModule;
+    }
 
     public List<Module> getModulesByCategory(Module.Category category) {
         return modules.stream()

@@ -4,7 +4,6 @@
   "package": "org.awesome.fabricclient.client.mixins",
   "compatibilityLevel": "JAVA_25",
   "client": [
-
   ],
   "injectors": {
     "defaultRequire": 1
@@ -13,5 +12,6 @@
     "requireAnnotations": true
   },
   "mixins": [
+    "RemoveJumpDelay"
   ]
 }

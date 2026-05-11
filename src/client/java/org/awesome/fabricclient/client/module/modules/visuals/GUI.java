@@ -6,6 +6,4 @@ public class GUI extends Module {
     public GUI() {
         super("GUI", "The client GUI", Category.VISUALS);
     }
-
-
 }
