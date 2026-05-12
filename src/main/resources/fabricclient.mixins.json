@@ -4,7 +4,6 @@
   "package": "org.awesome.fabricclient.client.mixins",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
-    "NoSlowMixin"
   ],
   "injectors": {
     "defaultRequire": 1

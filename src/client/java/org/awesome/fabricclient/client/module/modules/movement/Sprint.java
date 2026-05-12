@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.world.entity.player.Player;
+import org.awesome.fabricclient.client.module.Category;
 import org.awesome.fabricclient.client.module.Module;
 import org.awesome.fabricclient.client.module.settings.BooleanSetting;
 import org.awesome.fabricclient.client.module.settings.ModeSelectSetting;

@@ -1,5 +1,6 @@
 package org.awesome.fabricclient.client.module.modules.combat;
 
+import org.awesome.fabricclient.client.module.Category;
 import org.awesome.fabricclient.client.module.Module;
 import org.awesome.fabricclient.client.module.settings.BooleanSetting;
 import org.awesome.fabricclient.client.module.settings.ModeSelectSetting;

@@ -10,8 +10,13 @@ public class SliderSetting extends Setting<Double> {
         this.max = max;
     }
 
-    public double getMin() { return min; }
-    public double getMax() { return max; }
+    public double getMin() {
+        return min;
+    }
+
+    public double getMax() {
+        return max;
+    }
 
     @Override
     public void setValue(Double value) {

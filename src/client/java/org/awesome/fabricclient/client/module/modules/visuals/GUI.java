@@ -1,5 +1,6 @@
 package org.awesome.fabricclient.client.module.modules.visuals;
 
+import org.awesome.fabricclient.client.module.Category;
 import org.awesome.fabricclient.client.module.Module;
 
 public class GUI extends Module {

@@ -3,53 +3,64 @@ package org.awesome.fabricclient.client.module;
 import org.awesome.fabricclient.client.module.modules.combat.KillAura;
 import org.awesome.fabricclient.client.module.modules.movement.NoJumpDelay;
 import org.awesome.fabricclient.client.module.modules.movement.Sprint;
+import org.awesome.fabricclient.client.module.modules.utility.NoAttackCooldown;
 import org.awesome.fabricclient.client.module.modules.visuals.GUI;
+import org.awesome.fabricclient.client.module.settings.Setting;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class ModuleManager {
     private static ModuleManager instance;
-    private final List<Module> modules = new ArrayList<>();
+    private final Map<String, Module> modules = new HashMap<>();
+    private final Map<Module, List<Setting<?>>> settings = new HashMap<>();
 
+    // TODO: Auto register any modules
     private ModuleManager() {
         register(new KillAura());
         register(new Sprint());
         register(new NoJumpDelay());
+        register(new NoAttackCooldown());
         register(new GUI());
     }
 
     public static ModuleManager getInstance() {
-        if (instance == null) instance = new ModuleManager();
+        if (instance == null) {
+            instance = new ModuleManager();
+        }
+
         return instance;
     }
 
     private void register(Module module) {
-        modules.add(module);
+        if(modules.containsValue(module)) {
+            System.out.println(module.getName() + " already exist as a module");
+            return;
+        }
+
+        modules.put(module.getName(), module);
     }
 
-    public List<Module> getModules() {
+    public Map<String, Module> getModules() {
         return modules;
     }
 
-    public Module getModule(Class<?> clazz) {
-        List<Module> modules = getModules();
-        Module returnModule = null;
-
-        for(Module module : modules) {
-            if(module.getClass() == clazz) {
-                returnModule = module;
-                break;
-            }
+    public Module getModule(String moduleName) {
+        if(!modules.containsKey(moduleName)) {
+            return null;
         }
 
-        return returnModule;
+        return modules.get(moduleName);
     }
 
-    public List<Module> getModulesByCategory(Module.Category category) {
-        return modules.stream()
-                .filter(m -> m.getCategory() == category)
-                .collect(Collectors.toList());
+    public List<Module> getModulesByCategory(Category category) {
+        List<Module> moduleList = new ArrayList<>();
+
+        modules.forEach((string, module) -> {
+            if(module.getCategory() == category) {
+                moduleList.add(module);
+            }
+        });
+
+        return moduleList;
     }
 }

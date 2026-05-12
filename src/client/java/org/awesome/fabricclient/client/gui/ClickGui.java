@@ -1,6 +1,7 @@
 package org.awesome.fabricclient.client.gui;
 
 import net.minecraft.client.Minecraft;
+import org.awesome.fabricclient.client.module.Category;
 import org.joml.Matrix3x2fStack;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
@@ -75,7 +76,7 @@ public class ClickGui extends Screen {
     private static final int C_SCROLLBAR    = 0xFF18243A;
     private static final int C_SCROLLBAR_TH = 0xFF3A5272;
 
-    private Module.Category activeTab      = Module.Category.COMBAT;
+    private Category activeTab      = Category.COMBAT;
     private Module          settingsModule = null;
 
     private int             moduleScroll   = 0;
@@ -142,7 +143,7 @@ public class ClickGui extends Screen {
         g.text(this.font, nice("Awesome"), gx + SIDEBAR_PAD, gy + 9, C_ACCENT, true);
 
         int catY = gy + 36;
-        for (Module.Category cat : Module.Category.values()) {
+        for (Category cat : Category.values()) {
             boolean active  = cat == activeTab;
             boolean hovered = !active && isIn(mx, my, gx, catY, SIDEBAR_W, CAT_H);
 
@@ -374,7 +375,7 @@ public class ClickGui extends Screen {
         int gw = guiW(), gh = guiH();
 
         int catY = gy + 36;
-        for (Module.Category cat : Module.Category.values()) {
+        for (Category cat : Category.values()) {
             if (isIn(mx, my, gx, catY, SIDEBAR_W, CAT_H)) {
                 activeTab = cat;
                 settingsModule = null;

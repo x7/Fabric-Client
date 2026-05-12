@@ -10,7 +10,9 @@ public class ModeSelectSetting extends Setting<String> {
         this.modes = List.of(modes);
     }
 
-    public List<String> getModes() { return modes; }
+    public List<String> getModes() {
+        return modes;
+    }
 
     public void cycle() {
         int index = modes.indexOf(value);

@@ -14,12 +14,25 @@ public abstract class Setting<T> {
         this.value = defaultValue;
     }
 
-    public String getName() { return name; }
-    public String getDescription() { return description; }
-    public T getValue() { return value; }
-    public void setValue(T value) { this.value = value; }
+    public String getName() {
+        return name;
+    }
 
-    public boolean isVisible() { return visible.getAsBoolean(); }
+    public String getDescription() {
+        return description;
+    }
+
+    public T getValue() {
+        return value;
+    }
+
+    public void setValue(T value) {
+        this.value = value;
+    }
+
+    public boolean isVisible() {
+        return visible.getAsBoolean();
+    }
 
     public Setting<T> visibleWhen(BooleanSupplier predicate) {
         this.visible = predicate;
