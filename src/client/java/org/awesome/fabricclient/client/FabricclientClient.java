@@ -11,7 +11,7 @@ import org.awesome.fabricclient.client.utility.packets.PacketManager;
 import org.lwjgl.glfw.GLFW;
 
 public class FabricclientClient implements ClientModInitializer {
-    private static boolean initialized = false;
+    private static boolean packetManagerInitialized = false;
     private static final KeyMapping OPEN_CLICK_GUI = KeyMappingHelper.registerKeyMapping(
             new KeyMapping("key.fabricclient.click_gui", GLFW.GLFW_KEY_RIGHT_SHIFT, KeyMapping.Category.MISC)
     );
@@ -21,9 +21,9 @@ public class FabricclientClient implements ClientModInitializer {
         System.out.println("Client has started up!");
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if(!initialized && client.getConnection() != null) {
+            if(!packetManagerInitialized && MinecraftUtility.getPacketListener() != null) {
                 PacketManager.init();
-                initialized = true;
+                packetManagerInitialized = true;
             }
 
             while(OPEN_CLICK_GUI.consumeClick()) {

@@ -28,7 +28,6 @@ public abstract class NoAttackCooldownMixin {
             return;
         }
 
-        double invulnerableTicks = (double) noAttackCoolDownModule.getSetting("Ticks").getValue();
-        ((Entity) (Object) this).invulnerableTime = (int) invulnerableTicks;
+        ((Entity) (Object) this).invulnerableTime = 0;
     }
 }

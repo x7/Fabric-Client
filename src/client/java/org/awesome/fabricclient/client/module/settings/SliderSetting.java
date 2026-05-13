@@ -1,25 +1,25 @@
 package org.awesome.fabricclient.client.module.settings;
 
-public class SliderSetting extends Setting<Double> {
-    private final double min;
-    private final double max;
+public class SliderSetting extends Setting<Integer> {
+    private final int min;
+    private final int max;
 
-    public SliderSetting(String name, String description, double defaultValue, double min, double max) {
+    public SliderSetting(String name, String description, int defaultValue, int min, int max) {
         super(name, description, defaultValue);
         this.min = min;
         this.max = max;
     }
 
-    public double getMin() {
+    public int getMin() {
         return min;
     }
 
-    public double getMax() {
+    public int getMax() {
         return max;
     }
 
     @Override
-    public void setValue(Double value) {
+    public void setValue(Integer value) {
         this.value = Math.max(min, Math.min(max, value));
     }
 }

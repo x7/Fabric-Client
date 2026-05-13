@@ -60,17 +60,7 @@ public abstract class Module {
     }
 
     public Setting<?> getSetting(String settingName) {
-        List<Setting<?>> settings = getSettings();
-        Setting<?> returnSetting = null;
-
-        for(Setting<?> setting : settings) {
-            if(setting.getName().equalsIgnoreCase(settingName)) {
-                returnSetting = setting;
-                break;
-            }
-        }
-
-        return returnSetting;
+        return settings.get(settingName);
     }
 
     public List<Setting<?>> getSettings() {
