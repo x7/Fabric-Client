@@ -3,6 +3,7 @@ package org.awesome.fabricclient.client.utility;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.Connection;
+import org.lwjgl.glfw.GLFW;
 
 public class MinecraftUtility {
     public static Minecraft getMinecraftClient() {
@@ -20,5 +21,15 @@ public class MinecraftUtility {
         }
 
         return clientPacketListener.getConnection();
+    }
+
+    public static boolean isLeftClickDown() {
+        long window = MinecraftUtility.getMinecraftClient().getWindow().handle();
+        return GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
+    }
+
+    public static boolean isRightClickDown() {
+        long window = MinecraftUtility.getMinecraftClient().getWindow().handle();
+        return GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
     }
 }

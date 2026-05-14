@@ -1,8 +1,9 @@
 package org.awesome.fabricclient.client.module;
 
-import org.awesome.fabricclient.client.module.modules.combat.KillAura;
+import org.awesome.fabricclient.client.module.modules.combat.AutoClicker;
 import org.awesome.fabricclient.client.module.modules.movement.NoJumpDelay;
 import org.awesome.fabricclient.client.module.modules.movement.Sprint;
+import org.awesome.fabricclient.client.module.modules.utility.Debug;
 import org.awesome.fabricclient.client.module.modules.utility.NoAttackCooldown;
 import org.awesome.fabricclient.client.module.modules.visuals.GUI;
 import org.awesome.fabricclient.client.module.settings.Setting;
@@ -16,10 +17,11 @@ public class ModuleManager {
 
     // TODO: Auto register any modules
     private ModuleManager() {
-        register(new KillAura());
+        register(new AutoClicker());
         register(new Sprint());
         register(new NoJumpDelay());
         register(new NoAttackCooldown());
+        register(new Debug());
         register(new GUI());
     }
 

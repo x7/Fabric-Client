@@ -6,13 +6,13 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import net.minecraft.network.protocol.Packet;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class PacketManager {
-    private static final List<Consumer<PacketEvent>> incomingListeners = new ArrayList<>();
-    private static final List<Consumer<PacketEvent>> outgoingListeners = new ArrayList<>();
+    private static final Map<String, Consumer<PacketEvent>> incomingListeners = new HashMap<>();
+    private static final Map<String, Consumer<PacketEvent>> outgoingListeners = new HashMap<>();
 
     public static void init() {
         Channel channel = PacketUtilitys.getChannel();
@@ -32,8 +32,8 @@ public class PacketManager {
 
                         Packet<?> packet = (Packet<?>) msg;
                         PacketEvent packetEvent = new PacketEvent(packet);
-                        incomingListeners.forEach(listener -> {
-                            listener.accept(packetEvent);
+                        incomingListeners.forEach((name, packetEventConsumer) -> {
+                            packetEventConsumer.accept(packetEvent);
                         });
 
                         if(packetEvent.isCancelled()) {
@@ -56,8 +56,8 @@ public class PacketManager {
 
                         Packet<?> packet = (Packet<?>) msg;
                         PacketEvent packetEvent = new PacketEvent(packet);
-                        outgoingListeners.forEach(listener -> {
-                            listener.accept(packetEvent);
+                        outgoingListeners.forEach((name, packetEventConsumer) -> {
+                            packetEventConsumer.accept(packetEvent);
                         });
 
                         if(packetEvent.isCancelled()) {
@@ -70,27 +70,35 @@ public class PacketManager {
         );
     }
 
-    public static void addIncomingListener(Consumer<PacketEvent> listener) {
-        incomingListeners.add(listener);
-    }
-
-    public static void addOutgoingListener(Consumer<PacketEvent> listener) {
-        outgoingListeners.add(listener);
-    }
-
-    public static void removeIncomingListener(Consumer<PacketEvent> listener) {
-        if(!incomingListeners.contains(listener)) {
+    public static void addIncomingListener(String name, Consumer<PacketEvent> listener) {
+        if(incomingListeners.containsKey(name)) {
             return;
         }
 
-        incomingListeners.remove(listener);
+        incomingListeners.put(name, listener);
     }
 
-    public static void removeOutgoingListener(Consumer<PacketEvent> listener) {
-        if(!outgoingListeners.contains(listener)) {
+    public static void addOutgoingListener(String name, Consumer<PacketEvent> listener) {
+        if(outgoingListeners.containsKey(name)) {
             return;
         }
 
-        outgoingListeners.remove(listener);
+        outgoingListeners.put(name, listener);
+    }
+
+    public static void removeIncomingListener(String name) {
+        if(!incomingListeners.containsKey(name)) {
+            return;
+        }
+
+        incomingListeners.remove(name);
+    }
+
+    public static void removeOutgoingListener(String name) {
+        if(!outgoingListeners.containsKey(name)) {
+            return;
+        }
+
+        outgoingListeners.remove(name);
     }
 }

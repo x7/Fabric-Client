@@ -60,31 +60,31 @@ public class ClickGui extends Screen {
 
     private static final int SCROLL_SPEED = 10;
 
-    private static final int C_BG = 0xF2111620;
-    private static final int C_BG_DARK = 0xF00C1018;
-    private static final int C_TAB_BAR = 0xF0141A26;
-    private static final int C_TAB_ACTIVE = 0xF0192134;
-    private static final int C_TAB_HOVER = 0xBB18202E;
+    private static final int C_BG = 0xF20D1117;
+    private static final int C_BG_DARK = 0xF0010409;
+    private static final int C_TAB_BAR = 0xF0161B22;
+    private static final int C_TAB_ACTIVE = 0xF01F242C;
+    private static final int C_TAB_HOVER = 0xBB1C2128;
     private static final int C_TAB_TEXT = 0xFFFFFFFF;
-    private static final int C_TAB_TEXT_DIM = 0xFF8A99B5;
-    private static final int C_BORDER = 0xFF1A2640;
-    private static final int C_CARD = 0xCC131C2E;
-    private static final int C_CARD_HOVER = 0xCC1C2840;
-    private static final int C_CARD_BORDER = 0xFF1C2A42;
-    private static final int C_CARD_SEL = 0xCC1E2C46;
-    private static final int C_CARD_SEL_BRD = 0xFF2E4E78;
-    private static final int C_TEXT = 0xFFF2F6FF;
-    private static final int C_TEXT_DIM = 0xFFB4C0D2;
-    private static final int C_TEXT_DESC = 0xFF94A4BC;
+    private static final int C_TAB_TEXT_DIM = 0xFF8B949E;
+    private static final int C_BORDER = 0xFF30363D;
+    private static final int C_CARD = 0xCC161B22;
+    private static final int C_CARD_HOVER = 0xCC1F242C;
+    private static final int C_CARD_BORDER = 0xFF30363D;
+    private static final int C_CARD_SEL = 0xCC21262F;
+    private static final int C_CARD_SEL_BRD = 0xFFE8701A;
+    private static final int C_TEXT = 0xFFF0F6FC;
+    private static final int C_TEXT_DIM = 0xFFC9D1D9;
+    private static final int C_TEXT_DESC = 0xFF8B949E;
     private static final int C_ACCENT = 0xFFE8701A;
-    private static final int C_SET_BG = 0xF00E1422;
-    private static final int C_SET_BORDER = 0xFF1E3050;
-    private static final int C_SLIDER_BG = 0xFF162030;
+    private static final int C_SET_BG = 0xF00D1117;
+    private static final int C_SET_BORDER = 0xFF30363D;
+    private static final int C_SLIDER_BG = 0xFF21262F;
     private static final int C_SLIDER_FILL = 0xFFE8701A;
     private static final int C_SLIDER_KNOB = 0xFFFFFFFF;
-    private static final int C_OVERLAY = 0x88040810;
-    private static final int C_SCROLLBAR = 0xFF18243A;
-    private static final int C_SCROLLBAR_TH = 0xFF3A5272;
+    private static final int C_OVERLAY = 0xAA010409;
+    private static final int C_SCROLLBAR = 0xFF161B22;
+    private static final int C_SCROLLBAR_TH = 0xFF30363D;
 
     private Category activeTab = Category.COMBAT;
     private Module settingsModule = null;
@@ -214,8 +214,8 @@ public class ClickGui extends Screen {
 
         String bind = "NONE";
         int tagX = x + 10 + niceW(mod.getName()) + 6;
-        g.fill(tagX - 2, y + 7, tagX + niceW(bind) + 3, y + 19, 0x55101C30);
-        g.text(this.font, nice(bind), tagX, y + 9, 0xFF6E7E96, false);
+        g.fill(tagX - 2, y + 7, tagX + niceW(bind) + 3, y + 19, 0x66161B22);
+        g.text(this.font, nice(bind), tagX, y + 9, 0xFF8B949E, false);
 
         String desc = mod.getDescription();
         if (desc != null && !desc.isEmpty()) {
@@ -236,7 +236,7 @@ public class ClickGui extends Screen {
         drawCapsule(g, x, y + 2, tw, th, 0x44000000);
         drawCapsule(g, x + 1, y + 3, tw - 2, th, 0x18000000);
 
-        int track = on ? 0xFFE8701A : 0xFF1B2434;
+        int track = on ? 0xFFE8701A : 0xFF30363D;
         drawCapsule(g, x, y, tw, th, track);
 
         if (!on) drawCapsule(g, x + 1, y + 1, tw - 2, th - 2, 0x18000000);
@@ -597,24 +597,12 @@ public class ClickGui extends Screen {
         if (w <= 0 || h <= 0) return;
         double r = h / 2.0;
         double rr = r * r;
-        int alpha = (color >>> 24) & 0xFF;
-        int rgb = color & 0x00FFFFFF;
         for (int i = 0; i < h; i++) {
             double dy = i + 0.5 - r;
-            double off = Math.sqrt(Math.max(0.0, rr - dy * dy));
-            double leftEdge = r - off;
-            double rightEdge = w - (r - off);
-            int sx = (int)Math.ceil(leftEdge);
-            int ex = (int)Math.floor(rightEdge);
+            int off = (int) Math.round(Math.sqrt(Math.max(0.0, rr - dy * dy)));
+            int sx = (int)(r) - off;
+            int ex = w - sx;
             if (sx < ex) g.fill(x + sx, y + i, x + ex, y + i + 1, color);
-            if (sx > leftEdge) {
-                int a = (int)(alpha * (sx - leftEdge));
-                if (a > 0) g.fill(x + sx - 1, y + i, x + sx, y + i + 1, (a << 24) | rgb);
-            }
-            if (ex < rightEdge) {
-                int a = (int)(alpha * (rightEdge - ex));
-                if (a > 0) g.fill(x + ex, y + i, x + ex + 1, y + i + 1, (a << 24) | rgb);
-            }
         }
     }
 

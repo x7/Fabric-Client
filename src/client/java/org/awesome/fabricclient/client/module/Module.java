@@ -42,6 +42,7 @@ public abstract class Module {
     public String getName() {
         return name;
     }
+
     public String getDescription() {
         return description;
     }
