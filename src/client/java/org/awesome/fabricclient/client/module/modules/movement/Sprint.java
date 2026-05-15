@@ -26,12 +26,16 @@ public class Sprint extends Module {
     @Override
     public void onEnable() {
         System.out.println(PlayerUtility.getPlayer().getId());
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+        ClientTickEvents.START_CLIENT_TICK.register(client -> {
             if(!isEnabled()) {
                 return;
             }
 
             Player player = PlayerUtility.getPlayer();
+
+            if(player.isSprinting()) {
+                return;
+            }
 
             boolean isWDown = Utility.isKeyDown(InputConstants.getKey("key.keyboard.w"));
             boolean isSDown = Utility.isKeyDown(InputConstants.getKey("key.keyboard.s"));

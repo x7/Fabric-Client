@@ -217,6 +217,14 @@ public class ClickGui extends Screen {
         g.fill(tagX - 2, y + 7, tagX + niceW(bind) + 3, y + 19, 0x66161B22);
         g.text(this.font, nice(bind), tagX, y + 9, 0xFF8B949E, false);
 
+        if (hasVisibleSettings(mod)) {
+            String plus = "+";
+            int plusX = tagX + niceW(bind) + 7;
+            int plusW = niceW(plus);
+            g.fill(plusX - 3, y + 7, plusX + plusW + 3, y + 19, 0x33E8701A);
+            g.text(this.font, nice(plus), plusX, y + 9, C_ACCENT, true);
+        }
+
         String desc = mod.getDescription();
         if (desc != null && !desc.isEmpty()) {
             g.text(this.font, nice(trimW(desc, w - PILL_W - 22)), x + 10, y + 22, C_TEXT_DESC, false);
@@ -226,36 +234,157 @@ public class ClickGui extends Screen {
     }
 
     private void drawPill(GuiGraphicsExtractor g, boolean on, int x, int y) {
-        int tw = PILL_W, th = PILL_H;
+        int up = Math.max(1, uiScale);
+        int tw = PILL_W * up;
+        int th = PILL_H * up;
+        double tr = (th - 2.0) / 2.0;
+
+        Matrix3x2fStack ps = g.pose();
+        ps.pushMatrix();
+        ps.translate((float) x, (float) y);
+        ps.scale(1.0f / up, 1.0f / up);
 
         if (on) {
-            drawCapsule(g, x - 1, y - 1, tw + 2, th + 2, 0x33E8701A);
-            drawCapsule(g, x - 2, y - 2, tw + 4, th + 4, 0x18E8701A);
+            drawAARoundRect(g, -3 * up, -3 * up, tw + 6 * up, th + 6 * up, tr + 3 * up, 0x10E8701A);
+            drawAARoundRect(g, -2 * up, -2 * up, tw + 4 * up, th + 4 * up, tr + 2 * up, 0x1FE8701A);
+            drawAARoundRect(g, -up, -up, tw + 2 * up, th + 2 * up, tr + up, 0x3AE8701A);
         }
 
-        drawCapsule(g, x, y + 2, tw, th, 0x44000000);
-        drawCapsule(g, x + 1, y + 3, tw - 2, th, 0x18000000);
+        drawAARoundRect(g, 0, 2 * up, tw, th, tr, 0x33000000);
+        drawAARoundRect(g, 0, up, tw, th, tr, 0x55000000);
 
-        int track = on ? 0xFFE8701A : 0xFF30363D;
-        drawCapsule(g, x, y, tw, th, track);
+        int trackTop = on ? 0xFFFF8526 : 0xFF3A4049;
+        int trackBot = on ? 0xFFD15F10 : 0xFF22272E;
+        drawVerticalGradientPill(g, 0, 0, tw, th, tr, trackTop, trackBot);
 
-        if (!on) drawCapsule(g, x + 1, y + 1, tw - 2, th - 2, 0x18000000);
+        drawAARoundRect(g, up, up, tw - 2 * up, Math.max(1, up), tr - 1, on ? 0x55FFFFFF : 0x33FFFFFF);
+        drawAARoundRect(g, up, th - up - 1, tw - 2 * up, Math.max(1, up), tr - 1, 0x33000000);
 
-        drawCapsule(g, x + 2, y + 1, tw - 4, 1, on ? 0x66FFFFFF : 0x1AFFFFFF);
-        drawCapsule(g, x + 2, y + th - 2, tw - 4, 1, 0x33000000);
+        int kSize = th - 4 * up;
+        double kr = kSize / 2.0;
+        int kx = on ? tw - kSize - 2 * up : 2 * up;
+        int ky = 2 * up;
 
-        int kSize = th - 4;
-        int kx = on ? x + tw - kSize - 2 : x + 2;
-        int ky = y + 2;
-        drawCapsule(g, kx, ky + 2, kSize, kSize, 0x66000000);
-        drawCapsule(g, kx, ky + 1, kSize, kSize, 0x22000000);
-        drawCapsule(g, kx, ky, kSize, kSize, 0xFFFFFFFF);
-        drawCapsule(g, kx + 1, ky, kSize - 2, 1, 0x55FFFFFF);
-        drawCapsule(g, kx + 1, ky + kSize - 1, kSize - 2, 1, 0x22000000);
+        drawAARoundRect(g, kx - 1, ky + 2 * up, kSize + 2, kSize, kr + 1, 0x14000000);
+        drawAARoundRect(g, kx, ky + 2 * up, kSize, kSize, kr, 0x33000000);
+        drawAARoundRect(g, kx, ky + up, kSize, kSize, kr, 0x66000000);
+
+        drawVerticalGradientPill(g, kx, ky, kSize, kSize, kr, 0xFFFFFFFF, 0xFFE0E6EE);
+
+        drawAARoundRect(g, kx + up, ky, kSize - 2 * up, Math.max(1, up), kr - up, 0x77FFFFFF);
+        drawAARoundRect(g, kx + up, ky + kSize - up - 1, kSize - 2 * up, Math.max(1, up), kr - up, 0x22000000);
+
+        ps.popMatrix();
+    }
+
+    private void drawVerticalGradientPill(GuiGraphicsExtractor g, int x, int y, int w, int h, double r, int top, int bot) {
+        if (w <= 0 || h <= 0) return;
+        int aT = (top >>> 24) & 0xFF, rT = (top >>> 16) & 0xFF, gT = (top >>> 8) & 0xFF, bT = top & 0xFF;
+        int aB = (bot >>> 24) & 0xFF, rB = (bot >>> 16) & 0xFF, gB = (bot >>> 8) & 0xFF, bB = bot & 0xFF;
+        for (int j = 0; j < h; j++) {
+            double t = (h <= 1) ? 0 : (double) j / (h - 1);
+            int a = (int)(aT + (aB - aT) * t + 0.5);
+            int rC = (int)(rT + (rB - rT) * t + 0.5);
+            int gC = (int)(gT + (gB - gT) * t + 0.5);
+            int bC = (int)(bT + (bB - bT) * t + 0.5);
+            int c = (a << 24) | (rC << 16) | (gC << 8) | bC;
+            drawAARoundRectRow(g, x, y, w, h, r, j, c);
+        }
+    }
+
+    private void drawAARoundRectRow(GuiGraphicsExtractor g, int x, int y, int w, int h, double r, int j, int color) {
+        int alphaBase = (color >>> 24) & 0xFF;
+        if (alphaBase == 0) return;
+        int rgb = color & 0x00FFFFFF;
+        r = Math.max(0, Math.min(r, Math.min(w, h) / 2.0));
+        double yc = j + 0.5;
+        double dy;
+        if (yc < r) dy = r - yc;
+        else if (yc > h - r) dy = yc - (h - r);
+        else {
+            g.fill(x, y + j, x + w, y + j + 1, color);
+            return;
+        }
+        if (dy >= r) return;
+        double inset = r - Math.sqrt(r * r - dy * dy);
+        if (inset * 2 >= w) return;
+        int leftEdge = (int) Math.floor(inset);
+        double frac = inset - leftEdge;
+        double edgeCov = 1.0 - frac;
+        int edgeAlpha = (int)(alphaBase * edgeCov + 0.5);
+        int edgeC = (edgeAlpha << 24) | rgb;
+        int innerL = leftEdge + 1;
+        int innerR = w - leftEdge - 1;
+        if (innerL < innerR) g.fill(x + innerL, y + j, x + innerR, y + j + 1, color);
+        if (edgeAlpha > 0 && leftEdge < w / 2) {
+            g.fill(x + leftEdge, y + j, x + leftEdge + 1, y + j + 1, edgeC);
+            g.fill(x + w - leftEdge - 1, y + j, x + w - leftEdge, y + j + 1, edgeC);
+        }
+    }
+
+    private void drawAARoundRect(GuiGraphicsExtractor g, int x, int y, int w, int h, double r, int color) {
+        if (w <= 0 || h <= 0) return;
+        int alphaBase = (color >>> 24) & 0xFF;
+        if (alphaBase == 0) return;
+        int rgb = color & 0x00FFFFFF;
+        r = Math.max(0, Math.min(r, Math.min(w, h) / 2.0));
+        if (r < 0.5) {
+            g.fill(x, y, x + w, y + h, color);
+            return;
+        }
+        int rInt = (int) Math.ceil(r);
+        int midH = h - 2 * rInt;
+        if (midH > 0) g.fill(x, y + rInt, x + w, y + h - rInt, color);
+        int midW = w - 2 * rInt;
+        if (midW > 0) {
+            g.fill(x + rInt, y, x + w - rInt, y + rInt, color);
+            g.fill(x + rInt, y + h - rInt, x + w - rInt, y + h, color);
+        }
+        for (int j = 0; j < rInt; j++) {
+            int fullL = -1, fullR = -1;
+            for (int i = 0; i < rInt; i++) {
+                double dx = rInt - i - 0.5;
+                double dy = rInt - j - 0.5;
+                double d = Math.sqrt(dx * dx + dy * dy);
+                double cov = r - d + 0.5;
+                if (cov <= 0) continue;
+                if (cov >= 1) {
+                    if (fullL < 0) fullL = i;
+                    fullR = i + 1;
+                } else {
+                    int alpha = (int)(alphaBase * cov + 0.5);
+                    if (alpha <= 0) continue;
+                    int c = (alpha << 24) | rgb;
+                    g.fill(x + i, y + j, x + i + 1, y + j + 1, c);
+                    g.fill(x + w - 1 - i, y + j, x + w - i, y + j + 1, c);
+                    g.fill(x + i, y + h - 1 - j, x + i + 1, y + h - j, c);
+                    g.fill(x + w - 1 - i, y + h - 1 - j, x + w - i, y + h - j, c);
+                }
+            }
+            if (fullL >= 0) {
+                g.fill(x + fullL, y + j, x + fullR, y + j + 1, color);
+                g.fill(x + w - fullR, y + j, x + w - fullL, y + j + 1, color);
+                g.fill(x + fullL, y + h - 1 - j, x + fullR, y + h - j, color);
+                g.fill(x + w - fullR, y + h - 1 - j, x + w - fullL, y + h - j, color);
+            }
+        }
     }
 
     private void renderSettingsPanel(GuiGraphicsExtractor g, int px, int py, int gh, int mx, int my) {
         int sw = settingsW();
+
+        List<Setting<?>> settings = settingsModule.getSettings();
+        int totalSH = 8;
+        int visibleCount = 0;
+        for (Setting<?> s : settings) {
+            if (!s.isVisible()) continue;
+            totalSH += settingH(s) + 4;
+            visibleCount++;
+        }
+
+        if(visibleCount == 0) {
+            return;
+        }
 
         g.fill(px + 3, py + 3, px + sw + 3, py + gh + 3, 0x44000000);
         g.fill(px, py, px + sw, py + gh, C_SET_BG);
@@ -268,20 +397,14 @@ public class ClickGui extends Screen {
 
         int closeX = px + sw - 22, closeY = py + 6, closeS = 16;
         boolean closeHov = isIn(mx, my, closeX, closeY, closeS, closeS);
-        if (closeHov) drawCapsule(g, closeX, closeY, closeS, closeS, 0x22FFFFFF);
+        if (closeHov) {
+            drawCapsule(g, closeX, closeY, closeS, closeS, 0x22FFFFFF);
+        }
+
         g.text(this.font, nice("×"), px + sw - 14, py + 9, closeHov ? C_TEXT : C_TEXT_DIM, closeHov);
 
         int contentY = py + 28;
         int contentH = gh - 28;
-
-        List<Setting<?>> settings = settingsModule.getSettings();
-        int totalSH = 8;
-        int visibleCount = 0;
-        for (Setting<?> s : settings) {
-            if (!s.isVisible()) continue;
-            totalSH += settingH(s) + 4;
-            visibleCount++;
-        }
 
         int maxScroll = Math.max(0, totalSH - contentH);
         settingsScroll = Math.max(0, Math.min(settingsScroll, maxScroll));
@@ -298,10 +421,18 @@ public class ClickGui extends Screen {
         }
 
         if (visibleCount == 0) {
-            g.text(this.font, nice("No settings."), px + 8, contentY + 12, C_TEXT_DIM, false);
+            return;
+//            g.text(this.font, nice("No settings."), px + 8, contentY + 12, C_TEXT_DIM, false);
         }
 
         if (maxScroll > 0) drawScrollbar(g, px + sw - 5, contentY + 2, 4, contentH - 4, settingsScroll, totalSH);
+    }
+
+    private boolean hasVisibleSettings(Module mod) {
+        for (Setting<?> s : mod.getSettings()) {
+            if (s.isVisible()) return true;
+        }
+        return false;
     }
 
     private int settingH(Setting<?> s) {
@@ -428,7 +559,11 @@ public class ClickGui extends Screen {
             if (isIn(mx, my, cardX, cardY, cardW, CARD_H)) {
                 if (btn == 0) mod.toggle();
                 else if (btn == 1) {
-                    settingsModule = (settingsModule == mod) ? null : mod;
+                    if (settingsModule == mod) {
+                        settingsModule = null;
+                    } else if (hasVisibleSettings(mod)) {
+                        settingsModule = mod;
+                    }
                     settingsScroll = 0;
                 }
                 return true;

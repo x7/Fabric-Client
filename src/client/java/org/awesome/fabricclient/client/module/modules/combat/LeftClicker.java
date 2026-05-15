@@ -8,17 +8,17 @@ import org.awesome.fabricclient.client.module.Module;
 import org.awesome.fabricclient.client.utility.MinecraftUtility;
 import org.awesome.fabricclient.client.utility.PlayerUtility;
 
-public class AutoClicker extends Module {
+public class LeftClicker extends Module {
     private boolean clientTickEventInitalized = false;
 
-    public AutoClicker() {
-        super("Auto Clicker", "Auto Clicker", Category.COMBAT);
+    public LeftClicker() {
+        super("Left Clicker", "Left Clicker", Category.COMBAT);
     }
 
     @Override
     public void onEnable() {
         if(!clientTickEventInitalized) {
-            ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            ClientTickEvents.START_CLIENT_TICK.register(client -> {
                 boolean isLeftClickDown = MinecraftUtility.isLeftClickDown();
                 if(!isLeftClickDown) {
                     return;

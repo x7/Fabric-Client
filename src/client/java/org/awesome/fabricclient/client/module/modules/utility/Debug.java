@@ -2,9 +2,8 @@ package org.awesome.fabricclient.client.module.modules.utility;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ServerboundAttackPacket;
-import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
-import net.minecraft.network.protocol.game.ServerboundSwingPacket;
+import net.minecraft.network.protocol.game.*;
+import net.minecraft.world.phys.BlockHitResult;
 import org.awesome.fabricclient.client.module.Category;
 import org.awesome.fabricclient.client.module.Module;
 import org.awesome.fabricclient.client.module.settings.BooleanSetting;
@@ -14,6 +13,7 @@ import org.awesome.fabricclient.client.utility.packets.PacketEvent;
 import org.awesome.fabricclient.client.utility.packets.PacketManager;
 import org.awesome.fabricclient.client.utility.packets.PacketUtilitys;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class Debug extends Module {
@@ -41,13 +41,20 @@ public class Debug extends Module {
             if(logOutgoingPackets.getValue()) {
                 PacketManager.addOutgoingListener("debug_outgoing", packetEvent -> {
                     Component message = Component.literal("OUT: " + packetEvent.getPacket().getClass().getSimpleName());
-                    if(packetEvent.getPacket() instanceof ServerboundAttackPacket) {
-                        System.out.println(PacketUtilitys.getAllPacketFields(packetEvent.getPacket()));
+                    if(packetEvent.getPacket() instanceof ServerboundUseItemOnPacket) {
+                        BlockHitResult blockHitResult = ((ServerboundUseItemOnPacket) packetEvent.getPacket()).getHitResult();
+                        System.out.println("getlocation " + blockHitResult.getLocation()); // Block Location (Where the player clicks to place the block)
+                        System.out.println("hitborder " + blockHitResult.hitBorder());
+                        System.out.println("getblockpos " + blockHitResult.getBlockPos());
+                        System.out.println("gettype " + blockHitResult.getType());
+                        System.out.println("getdirection " + blockHitResult.getDirection());
+                        System.out.println("isninside " + blockHitResult.isInside());
+                        System.out.println("borderhit " + blockHitResult.isWorldBorderHit());
                     }
 
-                    MinecraftUtility.getMinecraftClient().execute(() -> {
-                        PlayerUtility.sendPlayerMessage(message);
-                    });
+//                    MinecraftUtility.getMinecraftClient().execute(() -> {
+//                        PlayerUtility.sendPlayerMessage(message);
+//                    });
                 });
             }
         });
