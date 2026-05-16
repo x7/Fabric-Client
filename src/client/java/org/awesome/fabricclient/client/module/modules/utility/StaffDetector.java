@@ -31,6 +31,7 @@ public class StaffDetector extends Module {
         super("Staff Detector", "Staff Detector", Category.UTILITY);
     }
 
+    // TODO: Make this and test on hypixel
     @Override
     public void onEnable() {
         Player player = PlayerUtility.getPlayer();

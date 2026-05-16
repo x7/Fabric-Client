@@ -25,7 +25,6 @@ public class Sprint extends Module {
 
     @Override
     public void onEnable() {
-        System.out.println(PlayerUtility.getPlayer().getId());
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
             if(!isEnabled()) {
                 return;

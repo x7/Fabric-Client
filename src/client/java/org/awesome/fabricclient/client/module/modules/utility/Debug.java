@@ -1,20 +1,13 @@
 package org.awesome.fabricclient.client.module.modules.utility;
 
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.*;
-import net.minecraft.world.phys.BlockHitResult;
 import org.awesome.fabricclient.client.module.Category;
 import org.awesome.fabricclient.client.module.Module;
 import org.awesome.fabricclient.client.module.settings.BooleanSetting;
 import org.awesome.fabricclient.client.utility.MinecraftUtility;
 import org.awesome.fabricclient.client.utility.PlayerUtility;
-import org.awesome.fabricclient.client.utility.packets.PacketEvent;
 import org.awesome.fabricclient.client.utility.packets.PacketManager;
-import org.awesome.fabricclient.client.utility.packets.PacketUtilitys;
-
-import java.util.Map;
-import java.util.function.Consumer;
 
 public class Debug extends Module {
     public final BooleanSetting logIncomingPackets = addSetting(new BooleanSetting("Log Incoming Packets", "Logs incoming packets", false));
@@ -27,40 +20,30 @@ public class Debug extends Module {
 
     @Override
     public void onEnable() {
-        // fix this
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if(logIncomingPackets.getValue()) {
-                PacketManager.addIncomingListener("debug_incoming", packetEvent -> {
-                    Component message = Component.literal("INC: " + packetEvent.getPacket().getClass().getSimpleName());
-                    MinecraftUtility.getMinecraftClient().execute(() -> {
-                        PlayerUtility.sendPlayerMessage(message);
-                    });
-                });
-            }
+        if(logIncomingPackets.getValue()) {
+            PacketManager.addIncomingListener("debug_incoming", packetEvent -> {
+                Component message = Component.literal("INC: " + packetEvent.getPacket().getClass().getSimpleName());
 
-            if(logOutgoingPackets.getValue()) {
-                PacketManager.addOutgoingListener("debug_outgoing", packetEvent -> {
-                    Component message = Component.literal("OUT: " + packetEvent.getPacket().getClass().getSimpleName());
-                    if(packetEvent.getPacket() instanceof ServerboundUseItemOnPacket) {
-                        BlockHitResult blockHitResult = ((ServerboundUseItemOnPacket) packetEvent.getPacket()).getHitResult();
-                        System.out.println("getlocation " + blockHitResult.getLocation()); // Block Location (Where the player clicks to place the block)
-                        System.out.println("hitborder " + blockHitResult.hitBorder());
-                        System.out.println("getblockpos " + blockHitResult.getBlockPos());
-                        System.out.println("gettype " + blockHitResult.getType());
-                        System.out.println("getdirection " + blockHitResult.getDirection());
-                        System.out.println("isninside " + blockHitResult.isInside());
-                        System.out.println("borderhit " + blockHitResult.isWorldBorderHit());
-                    }
-
-//                    MinecraftUtility.getMinecraftClient().execute(() -> {
-//                        PlayerUtility.sendPlayerMessage(message);
-//                    });
+                MinecraftUtility.getMinecraftClient().execute(() -> {
+                    PlayerUtility.sendPlayerMessage(message);
                 });
-            }
-        });
+            });
+        }
+
+        if(logOutgoingPackets.getValue()) {
+            PacketManager.addOutgoingListener("debug_outgoing", packetEvent -> {
+                Component message = Component.literal("OUT: " + packetEvent.getPacket().getClass().getSimpleName());
+
+                MinecraftUtility.getMinecraftClient().execute(() -> {
+                    PlayerUtility.sendPlayerMessage(message);
+                });
+            });
+        }
     }
 
     @Override
     public void onDisable() {
+        PacketManager.removeIncomingListener("debug_incoming");
+        PacketManager.removeOutgoingListener("debug_outgoing");
     }
 }

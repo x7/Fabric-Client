@@ -19,6 +19,10 @@ public class LeftClicker extends Module {
     public void onEnable() {
         if(!clientTickEventInitalized) {
             ClientTickEvents.START_CLIENT_TICK.register(client -> {
+                if(!this.isEnabled()) {
+                    return;
+                }
+
                 boolean isLeftClickDown = MinecraftUtility.isLeftClickDown();
                 if(!isLeftClickDown) {
                     return;
