@@ -1,5 +1,6 @@
 package org.awesome.fabricclient.client.module.modules.utility;
 
+import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import org.awesome.fabricclient.client.module.Category;
@@ -34,7 +35,6 @@ public class StaffDetector extends Module {
     // TODO: Make this and test on hypixel
     @Override
     public void onEnable() {
-        Player player = PlayerUtility.getPlayer();
-        PlayerUtility.sendPlayerChat("test");
+
     }
 }
