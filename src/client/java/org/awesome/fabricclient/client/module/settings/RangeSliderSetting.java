@@ -1,36 +1,36 @@
 package org.awesome.fabricclient.client.module.settings;
 
-public class RangeSliderSetting extends Setting<double[]> {
-    private final double min;
-    private final double max;
+public class RangeSliderSetting extends Setting<int[]> {
+    private final int min;
+    private final int max;
 
-    public RangeSliderSetting(String name, String description, double defaultMin, double defaultMax, double min, double max) {
-        super(name, description, new double[]{defaultMin, defaultMax});
+    public RangeSliderSetting(String name, String description, int defaultMin, int defaultMax, int min, int max) {
+        super(name, description, new int[]{defaultMin, defaultMax});
         this.min = min;
         this.max = max;
     }
 
-    public double getMin() {
+    public int getMin() {
         return min;
     }
 
-    public double getMax() {
+    public int getMax() {
         return max;
     }
 
-    public double getMinValue() {
+    public int getMinValue() {
         return value[0];
     }
 
-    public double getMaxValue() {
+    public int getMaxValue() {
         return value[1];
     }
 
-    public void setMinValue(double v) {
+    public void setMinValue(int v) {
         value[0] = Math.max(min, Math.min(v, value[1]));
     }
 
-    public void setMaxValue(double v) {
+    public void setMaxValue(int v) {
         value[1] = Math.max(value[0], Math.min(v, max));
     }
 }

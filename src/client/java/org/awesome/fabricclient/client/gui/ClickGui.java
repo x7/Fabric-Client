@@ -15,6 +15,7 @@ import net.minecraft.resources.Identifier;
 import org.awesome.fabricclient.client.module.Module;
 import org.awesome.fabricclient.client.module.ModuleManager;
 import org.awesome.fabricclient.client.module.settings.*;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -180,7 +181,7 @@ public class ClickGui extends Screen {
         int totalH = rows * (CARD_H + CARD_GAP) - CARD_GAP + CONTENT_PAD * 2;
 
         int maxScroll = Math.max(0, totalH - ch);
-        moduleScroll = Math.max(0, Math.min(moduleScroll, maxScroll));
+        moduleScroll = Math.clamp(moduleScroll, 0, maxScroll);
 
         for (int i = 0; i < mods.size(); i++) {
             Module mod = mods.get(i);
@@ -257,8 +258,8 @@ public class ClickGui extends Screen {
         int trackBot = on ? 0xFFD15F10 : 0xFF22272E;
         drawVerticalGradientPill(g, 0, 0, tw, th, tr, trackTop, trackBot);
 
-        drawAARoundRect(g, up, up, tw - 2 * up, Math.max(1, up), tr - 1, on ? 0x55FFFFFF : 0x33FFFFFF);
-        drawAARoundRect(g, up, th - up - 1, tw - 2 * up, Math.max(1, up), tr - 1, 0x33000000);
+        drawAARoundRect(g, up, up, tw - 2 * up, up, tr - 1, on ? 0x55FFFFFF : 0x33FFFFFF);
+        drawAARoundRect(g, up, th - up - 1, tw - 2 * up, up, tr - 1, 0x33000000);
 
         int kSize = th - 4 * up;
         double kr = kSize / 2.0;
@@ -271,8 +272,8 @@ public class ClickGui extends Screen {
 
         drawVerticalGradientPill(g, kx, ky, kSize, kSize, kr, 0xFFFFFFFF, 0xFFE0E6EE);
 
-        drawAARoundRect(g, kx + up, ky, kSize - 2 * up, Math.max(1, up), kr - up, 0x77FFFFFF);
-        drawAARoundRect(g, kx + up, ky + kSize - up - 1, kSize - 2 * up, Math.max(1, up), kr - up, 0x22000000);
+        drawAARoundRect(g, kx + up, ky, kSize - 2 * up, up, kr - up, 0x77FFFFFF);
+        drawAARoundRect(g, kx + up, ky + kSize - up - 1, kSize - 2 * up, up, kr - up, 0x22000000);
 
         ps.popMatrix();
     }
@@ -296,7 +297,7 @@ public class ClickGui extends Screen {
         int alphaBase = (color >>> 24) & 0xFF;
         if (alphaBase == 0) return;
         int rgb = color & 0x00FFFFFF;
-        r = Math.max(0, Math.min(r, Math.min(w, h) / 2.0));
+        r = Math.clamp(r, 0, Math.min(w, h) / 2.0);
         double yc = j + 0.5;
         double dy;
         if (yc < r) dy = r - yc;
@@ -327,7 +328,7 @@ public class ClickGui extends Screen {
         int alphaBase = (color >>> 24) & 0xFF;
         if (alphaBase == 0) return;
         int rgb = color & 0x00FFFFFF;
-        r = Math.max(0, Math.min(r, Math.min(w, h) / 2.0));
+        r = Math.clamp(r, 0, Math.min(w, h) / 2.0);
         if (r < 0.5) {
             g.fill(x, y, x + w, y + h, color);
             return;
@@ -382,7 +383,7 @@ public class ClickGui extends Screen {
             visibleCount++;
         }
 
-        if(visibleCount == 0) {
+        if (visibleCount == 0) {
             return;
         }
 
@@ -407,7 +408,7 @@ public class ClickGui extends Screen {
         int contentH = gh - 28;
 
         int maxScroll = Math.max(0, totalSH - contentH);
-        settingsScroll = Math.max(0, Math.min(settingsScroll, maxScroll));
+        settingsScroll = Math.clamp(settingsScroll, 0, maxScroll);
 
         int sy = contentY + 8 - settingsScroll;
         for (Setting<?> s : settings) {
@@ -418,11 +419,6 @@ public class ClickGui extends Screen {
                 drawSetting(g, s, px + 6, sy, sw - 12, hov);
             }
             sy += sh + 4;
-        }
-
-        if (visibleCount == 0) {
-            return;
-//            g.text(this.font, nice("No settings."), px + 8, contentY + 12, C_TEXT_DIM, false);
         }
 
         if (maxScroll > 0) drawScrollbar(g, px + sw - 5, contentY + 2, 4, contentH - 4, settingsScroll, totalSH);
@@ -469,12 +465,12 @@ public class ClickGui extends Screen {
 
         } else if (s instanceof RangeSliderSetting rs) {
             double range = rs.getMax() - rs.getMin();
-            double pctMin = (rs.getMinValue() - rs.getMin()) / range;
-            double pctMax = (rs.getMaxValue() - rs.getMin()) / range;
+            double pctMin = (double)(rs.getMinValue() - rs.getMin()) / range;
+            double pctMax = (double)(rs.getMaxValue() - rs.getMin()) / range;
             int bx = x + 4, bw = w - 8, by = y + 28;
             int knobMin = bx + (int)(bw * pctMin);
             int knobMax = bx + (int)(bw * pctMax);
-            String val = String.format("%.1f - %.1f", rs.getMinValue(), rs.getMaxValue());
+            String val = String.format("%d - %d", rs.getMinValue(), rs.getMaxValue());
             g.text(this.font, nice(rs.getName()), x + 4, sliderTextY, C_TEXT_DIM, true);
             g.text(this.font, nice(val), x + w - niceW(val) - 4, sliderTextY, C_TEXT, true);
             drawCapsule(g, bx, by, bw, 4, C_SLIDER_BG);
@@ -557,8 +553,9 @@ public class ClickGui extends Screen {
             int cardX = contentX + CONTENT_PAD + (i % CARD_COLS) * (cardW + CARD_GAP);
             int cardY = gy + CONTENT_PAD + (i / CARD_COLS) * (CARD_H + CARD_GAP) - moduleScroll;
             if (isIn(mx, my, cardX, cardY, cardW, CARD_H)) {
-                if (btn == 0) mod.toggle();
-                else if (btn == 1) {
+                if (btn == 0) {
+                    mod.toggle();
+                } else if (btn == 1) {
                     if (settingsModule == mod) {
                         settingsModule = null;
                     } else if (hasVisibleSettings(mod)) {
@@ -615,8 +612,8 @@ public class ClickGui extends Screen {
             sliderBarW = barW - 8;
             activeRangeSlider = rs;
             double range = rs.getMax() - rs.getMin();
-            double pctMin = (rs.getMinValue() - rs.getMin()) / range;
-            double pctMax = (rs.getMaxValue() - rs.getMin()) / range;
+            double pctMin = (double)(rs.getMinValue() - rs.getMin()) / range;
+            double pctMax = (double)(rs.getMaxValue() - rs.getMin()) / range;
             int knobMin = sliderBarX + (int)(sliderBarW * pctMin);
             int knobMax = sliderBarX + (int)(sliderBarW * pctMax);
             draggingRangeMax = Math.abs(mx - knobMax) <= Math.abs(mx - knobMin);
@@ -641,7 +638,7 @@ public class ClickGui extends Screen {
     }
 
     @Override
-    public boolean mouseReleased(MouseButtonEvent event) {
+    public boolean mouseReleased(@NonNull MouseButtonEvent event) {
         draggingSlider = false;
         activeSlider = null;
         activeRangeSlider = null;
@@ -649,7 +646,7 @@ public class ClickGui extends Screen {
     }
 
     @Override
-    public boolean keyPressed(KeyEvent event) {
+    public boolean keyPressed(@NonNull KeyEvent event) {
         if (activeInput != null) {
             if (event.key() == 259 && !activeInput.getValue().isEmpty()) {
                 activeInput.setValue(activeInput.getValue().substring(0, activeInput.getValue().length() - 1));
@@ -664,25 +661,29 @@ public class ClickGui extends Screen {
     }
 
     @Override
-    public boolean charTyped(CharacterEvent event) {
+    public boolean charTyped(@NonNull CharacterEvent event) {
         if (activeInput != null) {
-            if (event.isAllowedChatCharacter())
+            if (event.isAllowedChatCharacter()) {
                 activeInput.setValue(activeInput.getValue() + event.codepointAsString());
+            }
             return true;
         }
         return super.charTyped(event);
     }
 
     private void updateSlider(double mx) {
-        double pct = Math.max(0, Math.min(1, (mx - sliderBarX) / sliderBarW));
+        double pct = Math.clamp((mx - sliderBarX) / (double) sliderBarW, 0.0, 1.0);
         activeSlider.setValue((int) Math.round(activeSlider.getMin() + pct * (activeSlider.getMax() - activeSlider.getMin())));
     }
 
     private void updateRangeSlider(double mx) {
-        double pct = Math.max(0, Math.min(1, (mx - sliderBarX) / sliderBarW));
-        double v = activeRangeSlider.getMin() + pct * (activeRangeSlider.getMax() - activeRangeSlider.getMin());
-        if (draggingRangeMax) activeRangeSlider.setMaxValue(v);
-        else activeRangeSlider.setMinValue(v);
+        double pct = Math.clamp((mx - sliderBarX) / (double) sliderBarW, 0.0, 1.0);
+        int v = (int) Math.round(activeRangeSlider.getMin() + pct * (activeRangeSlider.getMax() - activeRangeSlider.getMin()));
+        if (draggingRangeMax) {
+            activeRangeSlider.setMaxValue(v);
+        } else {
+            activeRangeSlider.setMinValue(v);
+        }
     }
 
     private int guiW() {
@@ -712,8 +713,9 @@ public class ClickGui extends Screen {
 
     private String trimW(String text, int maxPx) {
         if (niceW(text) <= maxPx) return text;
-        while (!text.isEmpty() && niceW(text + "…") > maxPx)
+        while (!text.isEmpty() && niceW(text + "…") > maxPx) {
             text = text.substring(0, text.length() - 1);
+        }
         return text + "…";
     }
 
