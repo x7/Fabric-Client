@@ -1,5 +1,6 @@
 package org.awesome.fabricclient.client.module.modules.utility;
 
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.*;
 import org.awesome.fabricclient.client.module.Category;
@@ -21,30 +22,32 @@ public class Debug extends Module {
 
     @Override
     public void onEnable() {
-        if(logIncomingPackets.getValue()) {
-            PacketManager.addIncomingListener("debug_incoming", packetEvent -> {
-                Component message = Component.literal("INC: " + packetEvent.getPacket().getClass().getSimpleName());
+        ClientTickEvents.START_CLIENT_TICK.register(client -> {
+            if(logIncomingPackets.getValue()) {
+                PacketManager.addIncomingListener("debug_incoming", packetEvent -> {
+                    Component message = Component.literal("INC: " + packetEvent.getPacket().getClass().getSimpleName());
 
-                MinecraftUtility.getMinecraftClient().execute(() -> {
-                    PlayerUtility.sendPlayerMessage(message);
+                    MinecraftUtility.getMinecraftClient().execute(() -> {
+                        PlayerUtility.sendPlayerMessage(message);
+                    });
                 });
-            });
-        }
+            }
 
-        if(logOutgoingPackets.getValue()) {
-            PacketManager.addOutgoingListener("debug_outgoing", packetEvent -> {
-                Component message = Component.literal("OUT: " + packetEvent.getPacket().getClass().getSimpleName());
+            if(logOutgoingPackets.getValue()) {
+                PacketManager.addOutgoingListener("debug_outgoing", packetEvent -> {
+                    Component message = Component.literal("OUT: " + packetEvent.getPacket().getClass().getSimpleName());
 
-                if(packetEvent.getPacket() instanceof ServerboundSwingPacket || packetEvent.getPacket() instanceof ServerboundAttackPacket) {
-                    System.out.println(PacketUtilitys.getAllPacketFields(packetEvent.getPacket()));
-                }
+                    if(packetEvent.getPacket() instanceof ServerboundPlayerActionPacket) {
+                        System.out.println(PacketUtilitys.getAllPacketFields(packetEvent.getPacket()));
+                    }
 
 
-                MinecraftUtility.getMinecraftClient().execute(() -> {
-                    PlayerUtility.sendPlayerMessage(message);
+                    MinecraftUtility.getMinecraftClient().execute(() -> {
+                        PlayerUtility.sendPlayerMessage(message);
+                    });
                 });
-            });
-        }
+            }
+        });
     }
 
     @Override

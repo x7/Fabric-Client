@@ -6,7 +6,7 @@ import org.awesome.fabricclient.client.module.modules.movement.NoJumpDelay;
 import org.awesome.fabricclient.client.module.modules.movement.Sprint;
 import org.awesome.fabricclient.client.module.modules.utility.Debug;
 import org.awesome.fabricclient.client.module.modules.utility.NoAttackCooldown;
-import org.awesome.fabricclient.client.module.modules.utility.StaffDetector;
+import org.awesome.fabricclient.client.module.modules.utility.NoClickDelay;
 import org.awesome.fabricclient.client.module.modules.visuals.GUI;
 import org.awesome.fabricclient.client.module.settings.Setting;
 
@@ -26,7 +26,7 @@ public class ModuleManager {
         register(new NoAttackCooldown());
         register(new Debug());
         register(new GUI());
-        register(new StaffDetector());
+        register(new NoClickDelay());
     }
 
     public static ModuleManager getInstance() {

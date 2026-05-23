@@ -4,6 +4,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.protocol.Packet;
 
 import java.util.HashMap;
@@ -64,7 +65,7 @@ public class PacketManager {
                             return;
                         }
 
-                        super.write(ctx, msg, promise);
+                        super.write(ctx, packetEvent.getPacket(), promise);
                     }
                 }
         );

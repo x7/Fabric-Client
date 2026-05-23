@@ -7,6 +7,10 @@ import net.minecraft.network.protocol.Packet;
 import org.awesome.fabricclient.client.utility.MinecraftUtility;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -23,15 +27,17 @@ public class PacketUtilitys {
         }
     }
 
-    public static ConcurrentMap<String, String> getAllPacketFields(Packet<?> packet) {
-        ConcurrentMap<String, String> values = new ConcurrentHashMap<>();
+    public static List<Object> getAllPacketFields(Packet<?> packet) {
+//        Map<?, ?> values = new HashMap<>();
+        List<Object> values = new ArrayList<>();
         Class<?> clazz = packet.getClass();
 
         while(clazz != null) {
             for(Field field : clazz.getDeclaredFields()) {
                 field.setAccessible(true);
                 try {
-                    values.put(field.getName(), String.valueOf(field.get(packet)));
+                    values.add(field.get(packet));
+//                    values.put(field.getName(), String.valueOf(field.get(packet)));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
