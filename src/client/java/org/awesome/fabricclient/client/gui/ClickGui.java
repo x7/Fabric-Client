@@ -470,6 +470,12 @@ public class ClickGui extends Screen {
             int bx = x + 4, bw = w - 8, by = y + 28;
             int knobMin = bx + (int)(bw * pctMin);
             int knobMax = bx + (int)(bw * pctMax);
+
+            // i'm cool :)
+            if(knobMin == knobMax) {
+                knobMin = knobMin - 5;
+            }
+
             String val = String.format("%d - %d", rs.getMinValue(), rs.getMaxValue());
             g.text(this.font, nice(rs.getName()), x + 4, sliderTextY, C_TEXT_DIM, true);
             g.text(this.font, nice(val), x + w - niceW(val) - 4, sliderTextY, C_TEXT, true);
@@ -481,7 +487,6 @@ public class ClickGui extends Screen {
                 drawCapsule(g, knob - 5, by - 3, 10, 10, C_SLIDER_KNOB);
                 drawCapsule(g, knob - 4, by - 3, 8, 1, 0x55FFFFFF);
             }
-
         } else if (s instanceof ModeSelectSetting m) {
             g.text(this.font, nice(m.getName()), x + 4, textY, C_TEXT_DIM, true);
             String val = m.getValue();
@@ -611,12 +616,20 @@ public class ClickGui extends Screen {
             sliderBarX = barX + 4;
             sliderBarW = barW - 8;
             activeRangeSlider = rs;
+
             double range = rs.getMax() - rs.getMin();
             double pctMin = (double)(rs.getMinValue() - rs.getMin()) / range;
             double pctMax = (double)(rs.getMaxValue() - rs.getMin()) / range;
+
             int knobMin = sliderBarX + (int)(sliderBarW * pctMin);
             int knobMax = sliderBarX + (int)(sliderBarW * pctMax);
-            draggingRangeMax = Math.abs(mx - knobMax) <= Math.abs(mx - knobMin);
+
+            if (knobMin == knobMax) {
+                draggingRangeMax = mx >= knobMax;
+            } else {
+                draggingRangeMax = Math.abs(mx - knobMax) <= Math.abs(mx - knobMin);
+            }
+
             updateRangeSlider(mx);
         } else if (s instanceof InputSetting inp) {
             activeInput = (activeInput == inp) ? null : inp;

@@ -4,9 +4,7 @@ import org.awesome.fabricclient.client.module.modules.combat.LeftClicker;
 import org.awesome.fabricclient.client.module.modules.combat.RightClicker;
 import org.awesome.fabricclient.client.module.modules.movement.NoJumpDelay;
 import org.awesome.fabricclient.client.module.modules.movement.Sprint;
-import org.awesome.fabricclient.client.module.modules.utility.Debug;
-import org.awesome.fabricclient.client.module.modules.utility.NoAttackCooldown;
-import org.awesome.fabricclient.client.module.modules.utility.NoClickDelay;
+import org.awesome.fabricclient.client.module.modules.utility.*;
 import org.awesome.fabricclient.client.module.modules.visuals.GUI;
 import org.awesome.fabricclient.client.module.settings.Setting;
 
@@ -27,6 +25,8 @@ public class ModuleManager {
         register(new Debug());
         register(new GUI());
         register(new NoClickDelay());
+        register(new NoPlaceDelay());
+        register(new NoHurtCam());
     }
 
     public static ModuleManager getInstance() {

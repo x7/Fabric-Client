@@ -2,15 +2,22 @@ package org.awesome.fabricclient.client.utility;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Set;
 
 public class PlayerUtility {
     public static Player getPlayer() {
@@ -87,5 +94,22 @@ public class PlayerUtility {
         Vec3 blockPosition = new Vec3(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 
         return playerPosition.distanceTo(blockPosition);
+    }
+
+    public static boolean isHoldingSword() {
+        Player player = getPlayer();
+
+        if(player == null) {
+            return false;
+        }
+
+        Item playerHandHeldItem = player.getMainHandItem().getItem();
+        Set<Item> swords = Set.of(
+                Items.WOODEN_SWORD, Items.STONE_SWORD, Items.IRON_SWORD,
+                Items.GOLDEN_SWORD, Items.DIAMOND_SWORD, Items.COPPER_SWORD,
+                Items.NETHERITE_SWORD
+        );
+
+        return swords.contains(playerHandHeldItem);
     }
 }

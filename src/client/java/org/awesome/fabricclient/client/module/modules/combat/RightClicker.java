@@ -8,6 +8,8 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.BlockEventData;
+import net.minecraft.world.level.block.Block;
 import org.awesome.fabricclient.client.module.Category;
 import org.awesome.fabricclient.client.module.Module;
 import org.awesome.fabricclient.client.module.settings.RangeSliderSetting;
@@ -21,7 +23,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class RightClicker extends Module {
     private final RangeSliderSetting rps = addSetting(new RangeSliderSetting("RPS", "Right clicks per second", 14, 16, 1, 20));
-    private final List<Item> disallowedItems = Arrays.asList(Items.BOW, Items.FISHING_ROD);
+    private final List<Item> disallowedItems = Arrays.asList(Items.BOW, Items.FISHING_ROD, Items.IRON_SWORD);
     private float tickAccumulator = 0f;
 
     public RightClicker() {
@@ -31,13 +33,18 @@ public class RightClicker extends Module {
     @Override
     public void onEnable() {
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
-            if (!this.isEnabled()) {
+            if(!this.isEnabled()) {
                 tickAccumulator = 0f;
                 return;
             }
 
             boolean isRightClickDown = MinecraftUtility.isRightClickDown();
-            if (!isRightClickDown) {
+            if(!isRightClickDown) {
+                tickAccumulator = 0f;
+                return;
+            }
+
+            if(PlayerUtility.isHoldingSword()) {
                 tickAccumulator = 0f;
                 return;
             }
@@ -68,6 +75,11 @@ public class RightClicker extends Module {
         }
 
         if(playerHandHeldItem.getItem() instanceof BlockItem) {
+            Block block = PlayerUtility.getBlockPlayerLookingAt();
+            if(block == null || block.asItem() == Items.AIR) {
+                return;
+            }
+
             try {
                 Minecraft minecraft = MinecraftUtility.getMinecraftClient();
                 Method method = minecraft.getClass().getDeclaredMethod("startUseItem");

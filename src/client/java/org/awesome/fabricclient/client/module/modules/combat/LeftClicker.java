@@ -3,11 +3,7 @@ package org.awesome.fabricclient.client.module.modules.combat;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ServerboundAttackPacket;
-import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundSwingPacket;
-import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
@@ -19,17 +15,18 @@ import org.awesome.fabricclient.client.module.settings.RangeSliderSetting;
 import org.awesome.fabricclient.client.utility.MinecraftUtility;
 import org.awesome.fabricclient.client.utility.PlayerUtility;
 import org.awesome.fabricclient.client.utility.packets.PacketManager;
-import org.awesome.fabricclient.client.utility.packets.PacketUtilitys;
 
 import java.lang.reflect.Method;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class LeftClicker extends Module {
-    private final RangeSliderSetting cps = addSetting(new RangeSliderSetting("CPS", "Clicks Per Second", 14, 16, 1, 20));
+    private final RangeSliderSetting cps = addSetting(new RangeSliderSetting("CPS", "Clicks Per Second", 14, 16, 8, 20));
     private final BooleanSetting allowBreakingBlocks = addSetting(new BooleanSetting("Allow Breaking Blocks", "Disables clicking while breaking a block", false));
+    private final BooleanSetting useExhaust = addSetting(new BooleanSetting("Use Exhaust", "Simulates real exhaust when clicking", false));
     private boolean clientTickEventInitalized = false;
     private float tickAccumulator = 0f;
+    private int totalClicks = 0; // Used for Exhaust Mode
+    private boolean exhausted = false; // Used for Exhaust Mode
 
     public LeftClicker() {
         super("Left Clicker", "Left Clicker", Category.COMBAT);
@@ -37,34 +34,38 @@ public class LeftClicker extends Module {
 
     @Override
     public void onEnable() {
-        if(!clientTickEventInitalized) {
+        if (!clientTickEventInitalized) {
             ClientTickEvents.START_CLIENT_TICK.register(client -> {
-                if(!this.isEnabled()) {
+                if (!this.isEnabled()) {
                     tickAccumulator = 0f;
                     return;
                 }
 
                 boolean isLeftClickDown = MinecraftUtility.isLeftClickDown();
-                if(!isLeftClickDown) {
+                if (!isLeftClickDown) {
                     tickAccumulator = 0f;
                     return;
                 }
 
                 Player player = PlayerUtility.getPlayer();
-                if(player == null) {
+                if (player == null) {
                     tickAccumulator = 0f;
+                    return;
+                }
+
+                if(player.isUsingItem()) {
                     return;
                 }
 
                 // Breaking block check
                 Block blockPlayerLookingAt = PlayerUtility.getBlockPlayerLookingAt();
-                if((blockPlayerLookingAt != null && blockPlayerLookingAt != Block.byItem(Items.AIR))) {
-                    if(allowBreakingBlocks.getValue()) {
+                if ((blockPlayerLookingAt != null && blockPlayerLookingAt != Block.byItem(Items.AIR))) {
+                    if (allowBreakingBlocks.getValue()) {
                         BlockPos blockPlayerLookingAtPos = PlayerUtility.getBlockPosPlayerLookingAt();
                         double distanceToBlock = PlayerUtility.getDistanceToBlock(blockPlayerLookingAtPos);
                         double blockInteractionRange = player.blockInteractionRange();
 
-                        if(blockInteractionRange > distanceToBlock) {
+                        if (blockInteractionRange > distanceToBlock) {
                             tickAccumulator = 0f;
                             return;
                         }
@@ -73,13 +74,23 @@ public class LeftClicker extends Module {
                     }
                 }
 
+                if(useExhaust.getValue()) {
+                    shouldExhaust();
+                }
+
                 int minCps = cps.getMinValue();
                 int maxCps = cps.getMaxValue();
                 int currentCps = ThreadLocalRandom.current().nextInt(minCps, maxCps + 1);
                 tickAccumulator += currentCps / 20f;
 
                 while(tickAccumulator >= 1f) {
-                    tickAccumulator -= 1f;
+                    if(useExhaust.getValue() && exhausted) {
+                        float randomFloat = ThreadLocalRandom.current().nextFloat(3.5f, 5.0f);
+                        tickAccumulator -= randomFloat;
+                    } else {
+                        tickAccumulator -= 1f;
+                    }
+
                     performClick(player);
                 }
             });
@@ -90,7 +101,7 @@ public class LeftClicker extends Module {
 
     private void performClick(Player player) {
         Entity entity = PlayerUtility.getEntityPlayerLookingAt();
-        if(entity != null) {
+        if (entity != null) {
             Minecraft minecraft = MinecraftUtility.getMinecraftClient();
             try {
                 Method field = minecraft.getClass().getDeclaredMethod("startAttack");
@@ -106,6 +117,21 @@ public class LeftClicker extends Module {
         player.swing(player.getUsedItemHand(), false);
         ServerboundSwingPacket serverboundSwingPacket = new ServerboundSwingPacket(player.getUsedItemHand());
         MinecraftUtility.getPacketListener().send(serverboundSwingPacket);
+    }
+
+    private void shouldExhaust() {
+        totalClicks++;
+
+        int randomNumber = ThreadLocalRandom.current().nextInt(45, 60); // Lower? idk
+        if (totalClicks > randomNumber) {
+            exhausted = true;
+
+            double randomSleepTime = ThreadLocalRandom.current().nextDouble(0.25, 0.5);
+            MinecraftUtility.runLater(() -> {
+                exhausted = false;
+                totalClicks = 0;
+            }, randomSleepTime);
+        }
     }
 
     @Override
