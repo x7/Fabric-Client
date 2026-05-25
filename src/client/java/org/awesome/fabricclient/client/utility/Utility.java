@@ -19,4 +19,15 @@ public class Utility {
     public static int randomNumberBetween(int first, int second) {
         return ThreadLocalRandom.current().nextInt(first, second);
     }
+
+    // Used for the chance settings in determining if the module should activate or not
+    public static boolean shouldActivateChance(int min, int max, int currentChance) {
+        int randomNumber = ThreadLocalRandom.current().nextInt(min, max + 1);
+
+        if(randomNumber <= currentChance) {
+            return true;
+        }
+
+        return false;
+    }
 }

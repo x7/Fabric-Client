@@ -4,6 +4,7 @@ import net.minecraft.network.protocol.Packet;
 
 public class PacketEvent {
     private final Packet<?> packet;
+    private Packet<?> overridePacket;
     private boolean cancelled = false;
 
     public PacketEvent(Packet<?> packet) {
@@ -18,7 +19,15 @@ public class PacketEvent {
         cancelled = true;
     }
 
+    public void overridePacket(Packet<?> packet) {
+        this.overridePacket = packet;
+    }
+
     public boolean isCancelled() {
         return cancelled;
+    }
+
+    public Packet<?> getOverridePacket() {
+        return this.overridePacket;
     }
 }

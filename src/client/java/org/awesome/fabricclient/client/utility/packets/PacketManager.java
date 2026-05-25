@@ -4,7 +4,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.protocol.Packet;
 
 import java.util.HashMap;
@@ -41,6 +40,11 @@ public class PacketManager {
                             return;
                         }
 
+                        if(packetEvent.getOverridePacket() != null) {
+                            super.channelRead(ctx, packetEvent.getOverridePacket());
+                            return;
+                        }
+
                         super.channelRead(ctx, msg);
                     }
                 }
@@ -62,6 +66,11 @@ public class PacketManager {
                         });
 
                         if(packetEvent.isCancelled()) {
+                            return;
+                        }
+
+                        if(packetEvent.getOverridePacket() != null) {
+                            super.write(ctx, packetEvent.getOverridePacket(), promise);
                             return;
                         }
 
