@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class RightClicker extends Module {
-    private final RangeSliderSetting rps = addSetting(new RangeSliderSetting("RPS", "Right clicks per second", 14, 16, 1, 20));
+    private final RangeSliderSetting rps = addSetting(new RangeSliderSetting("RPS", "Right clicks per second", 14, 16, 8, 20));
     private final List<Item> disallowedItems = Arrays.asList(Items.BOW, Items.FISHING_ROD, Items.IRON_SWORD);
     private float tickAccumulator = 0f;
 
@@ -65,12 +65,10 @@ public class RightClicker extends Module {
     private void performClick(Player player) {
         ItemStack playerHandHeldItem = player.getMainHandItem();
         if(playerHandHeldItem.isEmpty()) {
-            tickAccumulator = 0f;
             return;
         }
 
         if(isDisallowedItem(playerHandHeldItem.getItem())) {
-            tickAccumulator = 0f;
             return;
         }
 

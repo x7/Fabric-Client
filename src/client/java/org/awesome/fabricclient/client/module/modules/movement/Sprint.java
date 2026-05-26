@@ -31,6 +31,9 @@ public class Sprint extends Module {
             }
 
             Player player = PlayerUtility.getPlayer();
+            if(player == null) {
+                return;
+            }
 
             if(player.isSprinting()) {
                 return;

@@ -15,7 +15,7 @@ import java.util.Arrays;
 public class FabricclientClient implements ClientModInitializer {
     private static boolean packetManagerInitialized = false;
     private static final KeyMapping OPEN_CLICK_GUI = KeyMappingHelper.registerKeyMapping(
-            new KeyMapping("key.fabricclient.click_gui", GLFW.GLFW_KEY_DELETE, KeyMapping.Category.MISC)
+            new KeyMapping("key.fabricclient.click_gui", GLFW.GLFW_KEY_RIGHT_SHIFT, KeyMapping.Category.MISC)
     );
 
     @Override

@@ -8,11 +8,13 @@ import net.minecraft.network.protocol.Packet;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
 public class PacketManager {
-    private static final Map<String, Consumer<PacketEvent>> incomingListeners = new HashMap<>();
-    private static final Map<String, Consumer<PacketEvent>> outgoingListeners = new HashMap<>();
+    private static final ConcurrentMap<String, Consumer<PacketEvent>> incomingListeners = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, Consumer<PacketEvent>> outgoingListeners = new ConcurrentHashMap<>();
 
     public static void init() {
         Channel channel = PacketUtilitys.getChannel();
