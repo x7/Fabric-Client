@@ -25,9 +25,10 @@ public class Velocity extends Module {
     }
 
     @Override
-    public void onEnable() {
+    public void onTickStart() {
         Player player = PlayerUtility.getPlayer();
         if(player == null) {
+            System.out.println("player null");
             return;
         }
 
@@ -100,10 +101,5 @@ public class Velocity extends Module {
     @Override
     public void onDisable() {
         PacketManager.removeIncomingListener("velocity_listener");
-    }
-
-    public enum VelocityModes {
-        NORMAL,
-        REVERSE
     }
 }

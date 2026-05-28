@@ -1,9 +1,6 @@
 package org.awesome.fabricclient.client.utility.packets;
 
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelDuplexHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
+import io.netty.channel.*;
 import net.minecraft.network.protocol.Packet;
 
 import java.util.HashMap;
@@ -15,6 +12,8 @@ import java.util.function.Consumer;
 public class PacketManager {
     private static final ConcurrentMap<String, Consumer<PacketEvent>> incomingListeners = new ConcurrentHashMap<>();
     private static final ConcurrentMap<String, Consumer<PacketEvent>> outgoingListeners = new ConcurrentHashMap<>();
+    private static ChannelPipeline incomingPipeline;
+    private static ChannelPipeline outgoingPipeline;
 
     public static void init() {
         Channel channel = PacketUtilitys.getChannel();
@@ -23,7 +22,7 @@ public class PacketManager {
             return;
         }
 
-        channel.pipeline().addBefore("packet_handler", "main_incoming_packet_listener",
+        incomingPipeline = channel.pipeline().addBefore("packet_handler", "main_incoming_packet_listener",
                 new ChannelDuplexHandler() {
                     @Override
                     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -52,7 +51,7 @@ public class PacketManager {
                 }
         );
 
-        channel.pipeline().addBefore("packet_handler", "main_outgoing_packet_listener",
+        outgoingPipeline = channel.pipeline().addBefore("packet_handler", "main_outgoing_packet_listener",
                 new ChannelDuplexHandler() {
                     @Override
                     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
@@ -82,10 +81,23 @@ public class PacketManager {
         );
     }
 
+    public static void deleteChannelPipelines() {
+        incomingPipeline.deregister();
+        outgoingPipeline.deregister();
+
+        incomingPipeline = null;
+        outgoingPipeline = null;
+
+        incomingListeners.clear();
+        outgoingListeners.clear();
+    }
+
     public static void addIncomingListener(String name, Consumer<PacketEvent> listener) {
         if(incomingListeners.containsKey(name)) {
             return;
         }
+
+        System.out.println(incomingListeners.size());
 
         incomingListeners.put(name, listener);
     }

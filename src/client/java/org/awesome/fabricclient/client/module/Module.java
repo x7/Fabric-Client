@@ -1,5 +1,6 @@
 package org.awesome.fabricclient.client.module;
 
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import org.awesome.fabricclient.client.module.settings.Setting;
 
 import java.util.ArrayList;
@@ -13,6 +14,8 @@ public abstract class Module {
     private final Category category;
     private boolean enabled = false;
     protected final Map<String, Setting<?>> settings = new HashMap<>();
+    private boolean isStartTickInitialized = false;
+    private boolean isEndTickInitialized = false;
 
     public Module(String name, String description, Category category) {
         this.name = name;
@@ -23,12 +26,37 @@ public abstract class Module {
     public void toggle() {
         enabled = !enabled;
 
-        if(enabled) {
-            onEnable();
+        if(!isStartTickInitialized) {
+            ClientTickEvents.START_CLIENT_TICK.register(client -> {
+                if(!isEnabled()) {
+                    System.out.println("not enabled");
+                    return;
+                }
+
+                onTickStart();
+            });
+
+            isStartTickInitialized = true;
+        }
+
+        if(!isEndTickInitialized) {
+            ClientTickEvents.END_CLIENT_TICK.register(client -> {
+                if(!isEnabled()) {
+                    return;
+                }
+
+                onTickEnd();
+            });
+
+            isEndTickInitialized = true;
+        }
+
+        if(!enabled) {
+            onDisable();
             return;
         }
 
-        onDisable();
+        onEnable();
     }
 
     public void onEnable() {
@@ -36,6 +64,14 @@ public abstract class Module {
     }
 
     public void onDisable() {
+
+    }
+
+    public void onTickStart() {
+
+    }
+
+    public void onTickEnd() {
 
     }
 

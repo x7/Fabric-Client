@@ -7,6 +7,7 @@ import org.awesome.fabricclient.client.module.modules.movement.NoJumpDelay;
 import org.awesome.fabricclient.client.module.modules.movement.Sprint;
 import org.awesome.fabricclient.client.module.modules.utility.*;
 import org.awesome.fabricclient.client.module.modules.visuals.GUI;
+import org.awesome.fabricclient.client.module.modules.visuals.Xray;
 import org.awesome.fabricclient.client.module.settings.Setting;
 
 import java.util.*;
@@ -29,6 +30,7 @@ public class ModuleManager {
         register(new NoPlaceDelay());
         register(new NoHurtCam());
         register(new Velocity());
+        register(new Xray());
     }
 
     public static ModuleManager getInstance() {

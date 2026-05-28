@@ -10,8 +10,6 @@ import org.awesome.fabricclient.client.utility.MinecraftUtility;
 import org.awesome.fabricclient.client.utility.packets.PacketManager;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.Arrays;
-
 public class FabricclientClient implements ClientModInitializer {
     private static boolean packetManagerInitialized = false;
     private static final KeyMapping OPEN_CLICK_GUI = KeyMappingHelper.registerKeyMapping(
@@ -23,6 +21,13 @@ public class FabricclientClient implements ClientModInitializer {
         System.out.println("Client has started up!");
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            // If the world is null there's no netty connection
+            if(packetManagerInitialized && client.level == null) {
+                packetManagerInitialized = false;
+                PacketManager.deleteChannelPipelines();
+                return;
+            }
+
             if(!packetManagerInitialized && MinecraftUtility.getPacketListener() != null) {
                 PacketManager.init();
                 packetManagerInitialized = true;
@@ -31,11 +36,6 @@ public class FabricclientClient implements ClientModInitializer {
             while(OPEN_CLICK_GUI.consumeClick()) {
                 toggleClickGui(client);
             }
-        });
-
-        System.out.println("hi");
-        Arrays.stream(Minecraft.class.getDeclaredMethods()).toList().forEach(aClass -> {
-            System.out.println(aClass);
         });
     }
 

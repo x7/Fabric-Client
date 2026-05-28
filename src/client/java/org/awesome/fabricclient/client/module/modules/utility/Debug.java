@@ -21,33 +21,35 @@ public class Debug extends Module {
     }
 
     @Override
-    public void onEnable() {
-        ClientTickEvents.START_CLIENT_TICK.register(client -> {
-            if(logIncomingPackets.getValue()) {
-                PacketManager.addIncomingListener("debug_incoming", packetEvent -> {
-                    Component message = Component.literal("INC: " + packetEvent.getPacket().getClass().getSimpleName());
+    public void onTickStart() {
+        if(logIncomingPackets.getValue()) {
+            PacketManager.addIncomingListener("debug_incoming", packetEvent -> {
+                Component message = Component.literal("INC: " + packetEvent.getPacket().getClass().getSimpleName());
 
-                    MinecraftUtility.getMinecraftClient().execute(() -> {
-                        PlayerUtility.sendPlayerMessage(message);
-                    });
+                MinecraftUtility.getMinecraftClient().execute(() -> {
+                    PlayerUtility.sendPlayerMessage(message);
                 });
-            }
+            });
+        } else {
+            PacketManager.removeIncomingListener("debug_incoming");
+        }
 
-            if(logOutgoingPackets.getValue()) {
-                PacketManager.addOutgoingListener("debug_outgoing", packetEvent -> {
-                    Component message = Component.literal("OUT: " + packetEvent.getPacket().getClass().getSimpleName());
+        if(logOutgoingPackets.getValue()) {
+            PacketManager.addOutgoingListener("debug_outgoing", packetEvent -> {
+                Component message = Component.literal("OUT: " + packetEvent.getPacket().getClass().getSimpleName());
 
-                    if(packetEvent.getPacket() instanceof ServerboundPlayerActionPacket) {
-                        System.out.println(PacketUtilitys.getAllPacketFields(packetEvent.getPacket()));
-                    }
+                if(packetEvent.getPacket() instanceof ServerboundPlayerActionPacket) {
+                    System.out.println(PacketUtilitys.getAllPacketFields(packetEvent.getPacket()));
+                }
 
 
-                    MinecraftUtility.getMinecraftClient().execute(() -> {
-                        PlayerUtility.sendPlayerMessage(message);
-                    });
+                MinecraftUtility.getMinecraftClient().execute(() -> {
+                    PlayerUtility.sendPlayerMessage(message);
                 });
-            }
-        });
+            });
+        } else {
+            PacketManager.removeOutgoingListener("debug_outgoing");
+        }
     }
 
     @Override
