@@ -7,8 +7,10 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import org.awesome.fabricclient.client.annotations.RegisterModule;
 import org.awesome.fabricclient.client.module.Category;
 import org.awesome.fabricclient.client.module.Module;
 import org.awesome.fabricclient.client.module.settings.SliderSetting;
@@ -17,11 +19,12 @@ import org.awesome.fabricclient.client.utility.PlayerUtility;
 
 import java.util.Map;
 
+@RegisterModule(name = "Xray", description = "Xray for ores", category = Category.VISUALS, active = false)
 public class Xray extends Module {
     private final SliderSetting maxChunks = addSetting(new SliderSetting("Max Chunks", "How many chunks to search for", 12, 1, 12));
 
     public Xray() {
-        super("Xray", "Xray for Ores", Category.VISUALS);
+        super();
     }
 
     @Override
@@ -32,31 +35,18 @@ public class Xray extends Module {
         }
 
         Level playerWorld = player.level();
-        LevelChunk currentChunk = playerWorld.getChunkAt(player.blockPosition());
+        ChunkSource chunkSource = playerWorld.getChunkSource();
+        int loadedChunksCount = chunkSource.getLoadedChunksCount();
 
-        if(currentChunk.isEmpty()) {
+        if(loadedChunksCount == 0) {
             return;
         }
 
-        ChunkPos chunkPos = currentChunk.getPos();
-        int startChunkX = chunkPos.getMinBlockX();
-        int startChunkZ = chunkPos.getMinBlockZ();
-        int lowestWorldY = playerWorld.getMinY();
-        int highestWorldY = playerWorld.getMaxY();
+        // chunks are 16 x 16
+        int minWorldY = playerWorld.getMinY();
+        int maxWorldY = playerWorld.getMaxY();
 
-        new Thread(() -> {
-            BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
-
-            for(int x = startChunkX; x < startChunkX + 16; x++) {
-                for(int z = startChunkZ; z < startChunkZ + 16; z++) {
-                    for(int y = lowestWorldY; y < highestWorldY; y++) {
-                        mutableBlockPos.set(x, y, z);
-                        BlockState blockEntity = playerWorld.getBlockState(mutableBlockPos);
-                        System.out.println(blockEntity.getBlock());
-                    }
-                }
-            }
-        }).start();
+        System.out.println(loadedChunksCount);
     }
 
     @Override

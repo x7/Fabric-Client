@@ -1,7 +1,11 @@
 package org.awesome.fabricclient.client.module;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.network.protocol.Packet;
+import org.awesome.fabricclient.client.annotations.RegisterModule;
 import org.awesome.fabricclient.client.module.settings.Setting;
+import org.awesome.fabricclient.client.utility.packets.PacketEvent;
+import org.awesome.fabricclient.client.utility.packets.PacketManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,24 +16,41 @@ public abstract class Module {
     private final String name;
     private final String description;
     private final Category category;
+    private final boolean active;
     private boolean enabled = false;
     protected final Map<String, Setting<?>> settings = new HashMap<>();
     private boolean isStartTickInitialized = false;
     private boolean isEndTickInitialized = false;
+    private boolean isIncomingPacketHandlerInitialized;
+    private boolean isOutgoingPacketHandlerInitialized;
 
-    public Module(String name, String description, Category category) {
+    public Module() {
+        RegisterModule annotation = this.getClass().getAnnotation(RegisterModule.class);
+
+        if(annotation == null) {
+            throw new IllegalStateException(this.getClass().getName() + " is missing @RegisterModule annotation");
+        }
+
+        this.name = annotation.name();
+        this.description = annotation.description();
+        this.category = annotation.category();
+        this.active = annotation.active();
+    }
+
+    protected Module(String name, String description, Category category, boolean active) {
         this.name = name;
         this.description = description;
         this.category = category;
+        this.active = active;
     }
 
     public void toggle() {
         enabled = !enabled;
 
+        // Start Tick Event
         if(!isStartTickInitialized) {
             ClientTickEvents.START_CLIENT_TICK.register(client -> {
                 if(!isEnabled()) {
-                    System.out.println("not enabled");
                     return;
                 }
 
@@ -39,6 +60,7 @@ public abstract class Module {
             isStartTickInitialized = true;
         }
 
+        // End Tick Event
         if(!isEndTickInitialized) {
             ClientTickEvents.END_CLIENT_TICK.register(client -> {
                 if(!isEnabled()) {
@@ -50,6 +72,33 @@ public abstract class Module {
 
             isEndTickInitialized = true;
         }
+
+        // Incoming packet
+        if(!isIncomingPacketHandlerInitialized) {
+            PacketManager.addIncomingListener("module_incoming_packet_listener", packetEvent -> {
+                if(!isEnabled()) {
+                    return;
+                }
+
+                onPacketReceive(packetEvent);
+            });
+
+            isIncomingPacketHandlerInitialized = true;
+        }
+
+        // Outgoing Packet
+        if(!isOutgoingPacketHandlerInitialized) {
+            PacketManager.addOutgoingListener("module_outgoing_packet_listener", packetEvent -> {
+                if(!isEnabled()) {
+                    return;
+                }
+
+                onPacketSend(packetEvent);
+            });
+
+            isOutgoingPacketHandlerInitialized = true;
+        }
+
 
         if(!enabled) {
             onDisable();
@@ -75,6 +124,14 @@ public abstract class Module {
 
     }
 
+    public void onPacketSend(PacketEvent packetEvent) {
+
+    }
+
+    public void onPacketReceive(PacketEvent packetEvent) {
+
+    }
+
     public String getName() {
         return name;
     }
@@ -89,6 +146,10 @@ public abstract class Module {
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public boolean isActive() {
+        return active;
     }
 
     protected <T extends Setting<?>> T addSetting(T setting) {

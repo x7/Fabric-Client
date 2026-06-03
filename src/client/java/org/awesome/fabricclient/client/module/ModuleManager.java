@@ -1,5 +1,8 @@
 package org.awesome.fabricclient.client.module;
 
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ScanResult;
+import org.awesome.fabricclient.client.annotations.RegisterModule;
 import org.awesome.fabricclient.client.module.modules.combat.LeftClicker;
 import org.awesome.fabricclient.client.module.modules.combat.RightClicker;
 import org.awesome.fabricclient.client.module.modules.combat.Velocity;
@@ -16,21 +19,27 @@ public class ModuleManager {
     private static ModuleManager instance;
     private final Map<String, Module> modules = new HashMap<>();
     private final Map<Module, List<Setting<?>>> settings = new HashMap<>();
+    private final Map<Category, List<Module>> categoryModules = new HashMap<>();
 
-    // TODO: Auto register any modules
     private ModuleManager() {
-        register(new LeftClicker());
-        register(new RightClicker());
-        register(new Sprint());
-        register(new NoJumpDelay());
-        register(new NoAttackCooldown());
-        register(new Debug());
-        register(new GUI());
-        register(new NoClickDelay());
-        register(new NoPlaceDelay());
-        register(new NoHurtCam());
-        register(new Velocity());
-        register(new Xray());
+        try(ScanResult scanResult = new ClassGraph().enableAnnotationInfo().acceptPackages("org.awesome.fabricclient").scan()) {
+            var moduleClasses = scanResult.getClassesWithAnnotation(RegisterModule.class.getName());
+
+            for(var classInfo : moduleClasses) {
+                Class<?> clazz = classInfo.loadClass();
+                try {
+                    Module module = (Module) clazz.getDeclaredConstructor().newInstance();
+
+                    if(!module.isActive()) {
+                        continue;
+                    }
+
+                    register(module);
+                } catch (Exception error) {
+                    System.out.println("Failed to register " + moduleClasses.getClass().getSimpleName() + " as a module");
+                }
+            }
+        }
     }
 
     public static ModuleManager getInstance() {
@@ -63,6 +72,10 @@ public class ModuleManager {
     }
 
     public List<Module> getModulesByCategory(Category category) {
+        if(categoryModules.containsKey(category)) {
+            return categoryModules.get(category);
+        }
+
         List<Module> moduleList = new ArrayList<>();
 
         modules.forEach((string, module) -> {
@@ -71,6 +84,7 @@ public class ModuleManager {
             }
         });
 
+        categoryModules.put(category, moduleList);
         return moduleList;
     }
 }

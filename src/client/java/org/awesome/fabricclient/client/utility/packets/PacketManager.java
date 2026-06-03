@@ -14,6 +14,8 @@ public class PacketManager {
     private static final ConcurrentMap<String, Consumer<PacketEvent>> outgoingListeners = new ConcurrentHashMap<>();
     private static ChannelPipeline incomingPipeline;
     private static ChannelPipeline outgoingPipeline;
+    private static ChannelHandlerContext incomingChannelHandlerContext;
+    private static ChannelHandlerContext outgoingChannelHandlerContext;
 
     public static void init() {
         Channel channel = PacketUtilitys.getChannel();
@@ -26,6 +28,10 @@ public class PacketManager {
                 new ChannelDuplexHandler() {
                     @Override
                     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+                        if(incomingChannelHandlerContext == null) {
+                            incomingChannelHandlerContext = ctx;
+                        }
+
                         if(!(msg instanceof Packet<?>)) {
                             super.channelRead(ctx, msg);
                             return;
@@ -124,5 +130,21 @@ public class PacketManager {
         }
 
         outgoingListeners.remove(name);
+    }
+
+    public static ChannelPipeline getIncomingPipeline() {
+        return incomingPipeline;
+    }
+
+    public static ChannelPipeline getOutgoingPipeline() {
+        return outgoingPipeline;
+    }
+
+    public static ChannelHandlerContext getIncomingChannelHandlerContext() {
+        return incomingChannelHandlerContext;
+    }
+
+    public static ChannelHandlerContext getOutgoingChannelHandlerContext() {
+        return outgoingChannelHandlerContext;
     }
 }

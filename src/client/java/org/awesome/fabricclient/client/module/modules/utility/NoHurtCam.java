@@ -1,10 +1,12 @@
 package org.awesome.fabricclient.client.module.modules.utility;
 
+import org.awesome.fabricclient.client.annotations.RegisterModule;
 import org.awesome.fabricclient.client.module.Category;
 import org.awesome.fabricclient.client.module.Module;
 
+@RegisterModule(name = "No Hurt Cam", description = "Remove the camera shaking when you take damage", category = Category.UTILITY, active = true)
 public class NoHurtCam extends Module {
     public NoHurtCam() {
-        super("No Hurt Cam", "Remove the camera shaking when you take damage", Category.UTILITY);
+        super();
     }
 }
