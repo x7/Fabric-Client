@@ -29,10 +29,6 @@ public class Sprint extends Module {
     @Override
     public void onTickStart() {
         Player player = PlayerUtility.getPlayer();
-        if(player == null) {
-            return;
-        }
-
         if(player.isSprinting()) {
             return;
         }

@@ -30,9 +30,6 @@ public class Velocity extends Module {
     @Override
     public void onPacketReceive(PacketEvent packetEvent) {
         Player player = PlayerUtility.getPlayer();
-        if(player == null) {
-            return;
-        }
 
         Packet<?> packet = packetEvent.getPacket();
         if(!(packet instanceof ClientboundSetEntityMotionPacket)) {

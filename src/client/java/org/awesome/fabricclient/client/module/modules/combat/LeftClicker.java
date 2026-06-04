@@ -40,11 +40,6 @@ public class LeftClicker extends Module {
         }
 
         Player player = PlayerUtility.getPlayer();
-        if (player == null) {
-            tickAccumulator = 0f;
-            return;
-        }
-
         if(player.isUsingItem()) {
             return;
         }
