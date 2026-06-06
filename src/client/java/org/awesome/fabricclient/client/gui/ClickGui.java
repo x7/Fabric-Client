@@ -9,9 +9,6 @@ import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FontDescription;
-import net.minecraft.network.chat.Style;
-import net.minecraft.resources.Identifier;
 import org.awesome.fabricclient.client.module.Module;
 import org.awesome.fabricclient.client.module.ModuleManager;
 import org.awesome.fabricclient.client.module.settings.*;
@@ -21,24 +18,24 @@ import java.util.List;
 
 public class ClickGui extends Screen {
 
-    private static final int GUI_W = 640;
-    private static final int GUI_H = 360;
-    private static final int GUI_SETTINGS_W = 192;
+    private static final int GUI_W = 700;
+    private static final int GUI_H = 400;
+    private static final int GUI_SETTINGS_W = 210;
 
-    private static final int SIDEBAR_W = 76;
-    private static final int SIDEBAR_PAD = 8;
-    private static final int CAT_H = 24;
+    private static final int SIDEBAR_W = 100;
+    private static final int SIDEBAR_PAD = 12;
+    private static final int CAT_H = 30;
 
-    private static final int CONTENT_PAD = 10;
+    private static final int CONTENT_PAD = 12;
     private static final int CARD_COLS = 2;
-    private static final int CARD_GAP = 6;
-    private static final int CARD_H = 40;
+    private static final int CARD_GAP = 8;
+    private static final int CARD_H = 52;
 
-    private static final int PILL_W = 30;
-    private static final int PILL_H = 14;
+    private static final int PILL_W = 36;
+    private static final int PILL_H = 18;
 
     private static final int UI_SCALE = 2;
-    private static final int FIT_PAD = 12;
+    private static final int FIT_PAD = 16;
 
     private double guiScale = 1.0;
     private int uiScale = UI_SCALE;
@@ -110,7 +107,7 @@ public class ClickGui extends Screen {
 
         guiScale = Minecraft.getInstance().getWindow().getGuiScale();
 
-        int needW = (settingsModule != null ? GUI_W + GUI_SETTINGS_W : GUI_W) + FIT_PAD * 2;
+        int needW = GUI_W + GUI_SETTINGS_W + FIT_PAD * 2;
         int needH = GUI_H + FIT_PAD * 2;
         int kMax = Math.max(1, Math.min(fbW() / needW, fbH() / needH));
         uiScale = Math.min(UI_SCALE, kMax);
@@ -127,7 +124,9 @@ public class ClickGui extends Screen {
         int gx = guiX(), gy = guiY();
         int gw = GUI_W, gh = GUI_H;
 
-        g.fill(gx + 4, gy + 4, gx + gw + 4, gy + gh + 4, 0x55000000);
+        // Stronger drop shadow
+        g.fill(gx + 6, gy + 6, gx + gw + 6, gy + gh + 6, 0x77000000);
+        g.fill(gx + 3, gy + 3, gx + gw + 3, gy + gh + 3, 0x44000000);
 
         g.fill(gx, gy, gx + gw, gy + gh, C_BG);
         g.outline(gx, gy, gw, gh, C_BORDER);
@@ -149,24 +148,27 @@ public class ClickGui extends Screen {
     }
 
     private void renderSidebar(GuiGraphicsExtractor g, int gx, int gy, int gh, int mx, int my) {
-        g.fill(gx, gy, gx + SIDEBAR_W, gy + 28, C_BG_DARK);
-        g.fill(gx, gy + 28, gx + SIDEBAR_W, gy + 29, C_ACCENT);
-        g.text(this.font, nice("Awesome"), gx + SIDEBAR_PAD, gy + 9, C_ACCENT, true);
+        g.fill(gx, gy, gx + SIDEBAR_W, gy + 36, C_BG_DARK);
+        // Accent underline
+        g.fill(gx, gy + 35, gx + SIDEBAR_W, gy + 37, C_ACCENT);
+        // Subtle left glow behind logo
+        g.fill(gx, gy, gx + 3, gy + 36, C_ACCENT);
+        g.text(this.font, nice("Awesome"), gx + SIDEBAR_PAD, gy + 12, C_ACCENT, true);
 
-        int catY = gy + 36;
+        int catY = gy + 46;
         for (Category cat : Category.values()) {
             boolean active = cat == activeTab;
             boolean hovered = !active && isIn(mx, my, gx, catY, SIDEBAR_W, CAT_H);
 
             if (active) {
                 g.fill(gx, catY, gx + SIDEBAR_W, catY + CAT_H, C_TAB_ACTIVE);
-                g.fill(gx, catY, gx + 2, catY + CAT_H, C_ACCENT);
+                g.fill(gx, catY, gx + 3, catY + CAT_H, C_ACCENT);
             } else if (hovered) {
                 g.fill(gx, catY, gx + SIDEBAR_W, catY + CAT_H, C_TAB_HOVER);
             }
 
             int textCol = active ? C_TAB_TEXT : (hovered ? C_TAB_TEXT : C_TAB_TEXT_DIM);
-            g.text(this.font, nice(cat.displayName), gx + SIDEBAR_PAD + 6, catY + (CAT_H - 8) / 2, textCol, active);
+            g.text(this.font, nice(cat.displayName), gx + SIDEBAR_PAD + 8, catY + (CAT_H - 8) / 2, textCol, active);
 
             catY += CAT_H;
         }
@@ -208,30 +210,30 @@ public class ClickGui extends Screen {
         g.fill(x, y, x + w, y + CARD_H, bg);
         g.outline(x, y, w, CARD_H, brd);
 
-        if (mod.isEnabled()) g.fill(x, y + 3, x + 2, y + CARD_H - 3, C_ACCENT);
+        if (mod.isEnabled()) g.fill(x, y + 4, x + 3, y + CARD_H - 4, C_ACCENT);
 
         int nameColor = mod.isEnabled() ? C_TEXT : C_TEXT_DIM;
-        g.text(this.font, nice(mod.getName()), x + 10, y + 9, nameColor, mod.isEnabled());
+        g.text(this.font, nice(mod.getName()), x + 12, y + 10, nameColor, mod.isEnabled());
 
         String bind = "NONE";
-        int tagX = x + 10 + niceW(mod.getName()) + 6;
-        g.fill(tagX - 2, y + 7, tagX + niceW(bind) + 3, y + 19, 0x66161B22);
-        g.text(this.font, nice(bind), tagX, y + 9, 0xFF8B949E, false);
+        int tagX = x + 12 + niceW(mod.getName()) + 7;
+        g.fill(tagX - 2, y + 8, tagX + niceW(bind) + 4, y + 20, 0x66161B22);
+        g.text(this.font, nice(bind), tagX, y + 10, 0xFF8B949E, false);
 
         if (hasVisibleSettings(mod)) {
             String plus = "+";
-            int plusX = tagX + niceW(bind) + 7;
+            int plusX = tagX + niceW(bind) + 8;
             int plusW = niceW(plus);
-            g.fill(plusX - 3, y + 7, plusX + plusW + 3, y + 19, 0x33E8701A);
-            g.text(this.font, nice(plus), plusX, y + 9, C_ACCENT, true);
+            g.fill(plusX - 3, y + 8, plusX + plusW + 3, y + 20, 0x33E8701A);
+            g.text(this.font, nice(plus), plusX, y + 10, C_ACCENT, true);
         }
 
         String desc = mod.getDescription();
         if (desc != null && !desc.isEmpty()) {
-            g.text(this.font, nice(trimW(desc, w - PILL_W - 22)), x + 10, y + 22, C_TEXT_DESC, false);
+            g.text(this.font, nice(trimW(desc, w - PILL_W - 28)), x + 12, y + 28, C_TEXT_DESC, false);
         }
 
-        drawPill(g, mod.isEnabled(), x + w - PILL_W - 8, y + CARD_H / 2 - PILL_H / 2);
+        drawPill(g, mod.isEnabled(), x + w - PILL_W - 10, y + CARD_H / 2 - PILL_H / 2);
     }
 
     private void drawPill(GuiGraphicsExtractor g, boolean on, int x, int y) {
@@ -251,15 +253,14 @@ public class ClickGui extends Screen {
             drawAARoundRect(g, -up, -up, tw + 2 * up, th + 2 * up, tr + up, 0x3AE8701A);
         }
 
-        drawAARoundRect(g, 0, 2 * up, tw, th, tr, 0x33000000);
-        drawAARoundRect(g, 0, up, tw, th, tr, 0x55000000);
+        drawAARoundRect(g, 0, 1 * up, tw, th, tr, 0x44000000);
 
         int trackTop = on ? 0xFFFF8526 : 0xFF3A4049;
         int trackBot = on ? 0xFFD15F10 : 0xFF22272E;
         drawVerticalGradientPill(g, 0, 0, tw, th, tr, trackTop, trackBot);
 
-        drawAARoundRect(g, up, up, tw - 2 * up, up, tr - 1, on ? 0x55FFFFFF : 0x33FFFFFF);
-        drawAARoundRect(g, up, th - up - 1, tw - 2 * up, up, tr - 1, 0x33000000);
+        // subtle inner bottom shadow only - no top highlight to avoid white line
+        drawAARoundRect(g, up, th - up - 1, tw - 2 * up, up, tr - 1, 0x22000000);
 
         int kSize = th - 4 * up;
         double kr = kSize / 2.0;
@@ -268,11 +269,11 @@ public class ClickGui extends Screen {
 
         drawAARoundRect(g, kx - 1, ky + 2 * up, kSize + 2, kSize, kr + 1, 0x14000000);
         drawAARoundRect(g, kx, ky + 2 * up, kSize, kSize, kr, 0x33000000);
-        drawAARoundRect(g, kx, ky + up, kSize, kSize, kr, 0x66000000);
+        drawAARoundRect(g, kx, ky + up, kSize, kSize, kr, 0x55000000);
 
         drawVerticalGradientPill(g, kx, ky, kSize, kSize, kr, 0xFFFFFFFF, 0xFFE0E6EE);
 
-        drawAARoundRect(g, kx + up, ky, kSize - 2 * up, up, kr - up, 0x77FFFFFF);
+        // subtle bottom shadow on knob only
         drawAARoundRect(g, kx + up, ky + kSize - up - 1, kSize - 2 * up, up, kr - up, 0x22000000);
 
         ps.popMatrix();
@@ -391,21 +392,21 @@ public class ClickGui extends Screen {
         g.fill(px, py, px + sw, py + gh, C_SET_BG);
         g.outline(px, py, sw, gh, C_SET_BORDER);
 
-        g.fill(px, py, px + sw, py + 28, C_TAB_BAR);
-        g.fill(px, py + 27, px + sw, py + 28, C_BORDER);
-        g.fill(px, py + 26, px + sw, py + 28, C_ACCENT);
-        g.text(this.font, nice(settingsModule.getName()), px + 8, py + 9, C_TEXT, true);
+        g.fill(px, py, px + sw, py + 36, C_TAB_BAR);
+        g.fill(px, py + 35, px + sw, py + 37, C_ACCENT);
+        g.fill(px, py, px + 3, py + 36, C_ACCENT);
+        g.text(this.font, nice(settingsModule.getName()), px + 10, py + 12, C_TEXT, true);
 
-        int closeX = px + sw - 22, closeY = py + 6, closeS = 16;
+        int closeX = px + sw - 24, closeY = py + 8, closeS = 18;
         boolean closeHov = isIn(mx, my, closeX, closeY, closeS, closeS);
         if (closeHov) {
-            drawCapsule(g, closeX, closeY, closeS, closeS, 0x22FFFFFF);
+            drawAARoundRect(g, closeX, closeY, closeS, closeS, 4, 0x33FFFFFF);
         }
 
-        g.text(this.font, nice("×"), px + sw - 14, py + 9, closeHov ? C_TEXT : C_TEXT_DIM, closeHov);
+        g.text(this.font, nice("×"), px + sw - 16, py + 12, closeHov ? C_TEXT : C_TEXT_DIM, closeHov);
 
-        int contentY = py + 28;
-        int contentH = gh - 28;
+        int contentY = py + 36;
+        int contentH = gh - 36;
 
         int maxScroll = Math.max(0, totalSH - contentH);
         settingsScroll = Math.clamp(settingsScroll, 0, maxScroll);
@@ -502,10 +503,12 @@ public class ClickGui extends Screen {
     }
 
     private void drawScrollbar(GuiGraphicsExtractor g, int x, int y, int w, int h, int scroll, int total) {
-        g.fill(x, y, x + w, y + h, C_SCROLLBAR);
-        int thumbH = Math.max(16, h * h / total);
+        // Track
+        drawAARoundRect(g, x, y, w, h, w / 2.0, C_SCROLLBAR);
+        int thumbH = Math.max(20, h * h / total);
         int thumbY = y + (int)((h - thumbH) * (double)scroll / Math.max(1, total - h));
-        g.fill(x, thumbY, x + w, thumbY + thumbH, C_SCROLLBAR_TH);
+        // Thumb with rounded corners
+        drawAARoundRect(g, x, thumbY, w, thumbH, w / 2.0, C_SCROLLBAR_TH);
     }
 
     @Override
@@ -516,7 +519,7 @@ public class ClickGui extends Screen {
         int gx = guiX(), gy = guiY();
         int gw = guiW(), gh = guiH();
 
-        int catY = gy + 36;
+        int catY = gy + 46;
         for (Category cat : Category.values()) {
             if (isIn(mx, my, gx, catY, SIDEBAR_W, CAT_H)) {
                 activeTab = cat;
@@ -530,12 +533,12 @@ public class ClickGui extends Screen {
         if (settingsModule != null) {
             int px = gx + gw;
             int sw = settingsW();
-            if (isIn(mx, my, px + sw - 22, gy + 6, 16, 16)) {
+            if (isIn(mx, my, px + sw - 24, gy + 8, 18, 18)) {
                 settingsModule = null;
                 settingsScroll = 0;
                 return true;
             }
-            int contentY = gy + 28;
+            int contentY = gy + 36;
             int sy = contentY + 8 - settingsScroll;
             for (Setting<?> s : settingsModule.getSettings()) {
                 if (!s.isVisible()) continue;
@@ -732,11 +735,8 @@ public class ClickGui extends Screen {
         return text + "…";
     }
 
-    private static final Style NICE_STYLE = Style.EMPTY.withFont(
-            new FontDescription.Resource(Identifier.parse("fabricclient:nice")));
-
     private Component nice(String s) {
-        return Component.literal(s).withStyle(NICE_STYLE);
+        return Component.literal(s);
     }
 
     private int niceW(String s) {

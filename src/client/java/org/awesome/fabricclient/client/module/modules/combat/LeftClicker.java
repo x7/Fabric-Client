@@ -46,13 +46,13 @@ public class LeftClicker extends Module {
 
         // Breaking block check
         Block blockPlayerLookingAt = PlayerUtility.getBlockPlayerLookingAt();
-        if ((blockPlayerLookingAt != null && blockPlayerLookingAt != Block.byItem(Items.AIR))) {
+        if((blockPlayerLookingAt != null && blockPlayerLookingAt != Block.byItem(Items.AIR))) {
             if (allowBreakingBlocks.getValue()) {
                 BlockPos blockPlayerLookingAtPos = PlayerUtility.getBlockPosPlayerLookingAt();
                 double distanceToBlock = PlayerUtility.getDistanceToBlock(blockPlayerLookingAtPos);
                 double blockInteractionRange = player.blockInteractionRange();
 
-                if (blockInteractionRange > distanceToBlock) {
+                if(blockInteractionRange > distanceToBlock) {
                     tickAccumulator = 0f;
                     return;
                 }
@@ -111,7 +111,7 @@ public class LeftClicker extends Module {
         totalClicks++;
 
         int randomNumber = ThreadLocalRandom.current().nextInt(25, 40);
-        if (totalClicks > randomNumber) {
+        if(totalClicks > randomNumber) {
             exhausted = true;
 
             double randomSleepTime = ThreadLocalRandom.current().nextDouble(0.15, 0.35);

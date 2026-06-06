@@ -2,26 +2,26 @@ package org.awesome.fabricclient.client.module.modules.utility;
 
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.world.entity.player.Player;
 import org.awesome.fabricclient.client.annotations.RegisterModule;
+import org.awesome.fabricclient.client.enums.BlinkEnum;
 import org.awesome.fabricclient.client.module.Category;
 import org.awesome.fabricclient.client.module.Module;
 import org.awesome.fabricclient.client.module.settings.ModeSelectSetting;
 import org.awesome.fabricclient.client.module.settings.SliderSetting;
 import org.awesome.fabricclient.client.utility.MinecraftUtility;
-import org.awesome.fabricclient.client.utility.PlayerUtility;
 import org.awesome.fabricclient.client.utility.packets.PacketEvent;
 import org.awesome.fabricclient.client.utility.packets.PacketManager;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @RegisterModule(name = "Blink", description = "Teleport yourself using real lag", category = Category.UTILITY, active = true)
 public class Blink extends Module {
     private final ModeSelectSetting mode = addSetting(new ModeSelectSetting("Direction", "Direction of blink", "In", "In", "Out"));
     private final SliderSetting duration = addSetting(new SliderSetting("Duration", "Duration of blink", 1, 1, 50));
-    private final List<Packet<?>> delayedIncomingPackets = new ArrayList<>();
-    private final List<Packet<?>> delayedOutgoingPackets = new ArrayList<>();
+    private final Map<BlinkEnum, List<Packet<?>>> delayedPackets = new LinkedHashMap<>();
     private int tickCount = 0;
     private int secondsInitalized = 0;
 
@@ -53,7 +53,7 @@ public class Blink extends Module {
             return;
         }
 
-        delayedOutgoingPackets.add(packetEvent.getPacket());
+        addPacket(BlinkEnum.OUTBOUND, packetEvent.getPacket());
         packetEvent.cancel();
     }
 
@@ -63,7 +63,7 @@ public class Blink extends Module {
             return;
         }
 
-        delayedIncomingPackets.add(packetEvent.getPacket());
+        addPacket(BlinkEnum.INBOUND, packetEvent.getPacket());
         packetEvent.cancel();
     }
 
@@ -74,23 +74,46 @@ public class Blink extends Module {
         sendAllPackets();
     }
 
+    private void addPacket(BlinkEnum type, Packet<?> packet) {
+        if(type == BlinkEnum.INBOUND) {
+            if(delayedPackets.get(BlinkEnum.INBOUND) == null) {
+                delayedPackets.put(BlinkEnum.INBOUND, new ArrayList<>());
+            }
+
+            delayedPackets.get(BlinkEnum.INBOUND).add(packet);
+            return;
+        }
+
+        if(delayedPackets.get(BlinkEnum.OUTBOUND) == null) {
+            delayedPackets.put(BlinkEnum.OUTBOUND, new ArrayList<>());
+        }
+
+        delayedPackets.get(BlinkEnum.OUTBOUND).add(packet);
+    }
+
     private void sendAllPackets() {
         ClientPacketListener clientPacketListener = MinecraftUtility.getPacketListener();
 
-        if(!delayedIncomingPackets.isEmpty()) {
-            for(Packet<?> packet : delayedIncomingPackets) {
-                PacketManager.getIncomingChannelHandlerContext().fireChannelRead(packet);
-            }
-
-            delayedIncomingPackets.clear();
+        if(delayedPackets.isEmpty()) {
+            return;
         }
 
-        if(!delayedOutgoingPackets.isEmpty()) {
-            for(Packet<?> packet : delayedOutgoingPackets) {
-                clientPacketListener.send(packet);
+        for(Map.Entry<BlinkEnum, List<Packet<?>>> entry : delayedPackets.entrySet()) {
+            List<Packet<?>> packet = entry.getValue();
+            if(entry.getKey() == BlinkEnum.INBOUND) {
+                for(Packet<?> packet1 : packet) {
+                    PacketManager.getIncomingChannelHandlerContext().fireChannelRead(packet1);
+                }
+
+                return;
             }
 
-            delayedOutgoingPackets.clear();
+            // has to be outbound
+            for(Packet<?> packet1 : packet) {
+                clientPacketListener.send(packet1);
+            }
         }
+
+        delayedPackets.clear();
     }
 }

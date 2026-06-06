@@ -2,15 +2,14 @@ package org.awesome.fabricclient.client.module;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.world.entity.player.Player;
 import org.awesome.fabricclient.client.annotations.RegisterModule;
 import org.awesome.fabricclient.client.module.settings.Setting;
+import org.awesome.fabricclient.client.utility.PlayerUtility;
 import org.awesome.fabricclient.client.utility.packets.PacketEvent;
 import org.awesome.fabricclient.client.utility.packets.PacketManager;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class Module {
     private final String name;
@@ -18,7 +17,7 @@ public abstract class Module {
     private final Category category;
     private final boolean active;
     private boolean enabled = false;
-    protected final Map<String, Setting<?>> settings = new HashMap<>();
+    protected final Map<String, Setting<?>> settings = new LinkedHashMap<>();
     private boolean isStartTickInitialized = false;
     private boolean isEndTickInitialized = false;
     private boolean isIncomingPacketHandlerInitialized;
@@ -47,10 +46,17 @@ public abstract class Module {
     public void toggle() {
         enabled = !enabled;
 
+        if(!enabled) {
+            onDisable();
+            return;
+        }
+
+        onEnable();
+
         // Start Tick Event
         if(!isStartTickInitialized) {
             ClientTickEvents.START_CLIENT_TICK.register(client -> {
-                if(!isEnabled()) {
+                if(eventChecks()) {
                     return;
                 }
 
@@ -63,7 +69,7 @@ public abstract class Module {
         // End Tick Event
         if(!isEndTickInitialized) {
             ClientTickEvents.END_CLIENT_TICK.register(client -> {
-                if(!isEnabled()) {
+                if(eventChecks()) {
                     return;
                 }
 
@@ -76,7 +82,7 @@ public abstract class Module {
         // Incoming packet
         if(!isIncomingPacketHandlerInitialized) {
             PacketManager.addIncomingListener("module_incoming_packet_listener", packetEvent -> {
-                if(!isEnabled()) {
+                if(eventChecks()) {
                     return;
                 }
 
@@ -89,7 +95,7 @@ public abstract class Module {
         // Outgoing Packet
         if(!isOutgoingPacketHandlerInitialized) {
             PacketManager.addOutgoingListener("module_outgoing_packet_listener", packetEvent -> {
-                if(!isEnabled()) {
+                if(eventChecks()) {
                     return;
                 }
 
@@ -98,14 +104,6 @@ public abstract class Module {
 
             isOutgoingPacketHandlerInitialized = true;
         }
-
-
-        if(!enabled) {
-            onDisable();
-            return;
-        }
-
-        onEnable();
     }
 
     public void onEnable() {
@@ -173,5 +171,10 @@ public abstract class Module {
         }
 
         return settingsList;
+    }
+
+    private boolean eventChecks() {
+        Player player = PlayerUtility.getPlayer();
+        return player == null || !isEnabled();
     }
 }

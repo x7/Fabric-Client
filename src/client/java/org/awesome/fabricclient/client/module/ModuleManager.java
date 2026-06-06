@@ -18,7 +18,6 @@ import java.util.*;
 public class ModuleManager {
     private static ModuleManager instance;
     private final Map<String, Module> modules = new HashMap<>();
-    private final Map<Module, List<Setting<?>>> settings = new HashMap<>();
     private final Map<Category, List<Module>> categoryModules = new HashMap<>();
 
     private ModuleManager() {
