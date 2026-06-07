@@ -22,7 +22,7 @@ public class RemoveJumpDelayMixin {
     @Inject(method = "aiStep", at = @At("TAIL"))
     private void removeJumpDelay(CallbackInfo ci) {
         if(noJumpDelayModule == null) {
-            noJumpDelayModule = ModuleManager.getInstance().getModule("No Jump Delay");
+            noJumpDelayModule = ModuleManager.getInstance().getModule(NoJumpDelay.class);
         }
 
         if(!noJumpDelayModule.isEnabled()) {

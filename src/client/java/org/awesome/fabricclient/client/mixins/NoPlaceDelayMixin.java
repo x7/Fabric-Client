@@ -3,6 +3,7 @@ package org.awesome.fabricclient.client.mixins;
 import net.minecraft.client.Minecraft;
 import org.awesome.fabricclient.client.module.Module;
 import org.awesome.fabricclient.client.module.ModuleManager;
+import org.awesome.fabricclient.client.module.modules.utility.NoPlaceDelay;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -20,7 +21,7 @@ public class NoPlaceDelayMixin {
     @Inject(method = "startUseItem", at = @At("TAIL"))
     private void modifyRightClickDelay(CallbackInfo ci) {
         if(noPlaceDelayModule == null) {
-            noPlaceDelayModule = ModuleManager.getInstance().getModule("No Place Delay");
+            noPlaceDelayModule = ModuleManager.getInstance().getModule(NoPlaceDelay.class);
         }
 
         if(!noPlaceDelayModule.isEnabled()) {

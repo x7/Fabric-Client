@@ -21,7 +21,7 @@ public abstract class NoAttackCooldownMixin {
     @Inject(method = "hurtServer", at = @At("HEAD"))
     private void removeAttackCoolDown(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
         if(noAttackCoolDownModule == null) {
-            noAttackCoolDownModule = ModuleManager.getInstance().getModule("No Attack Cooldown");
+            noAttackCoolDownModule = ModuleManager.getInstance().getModule(NoAttackCooldown.class);
         }
 
         if(!noAttackCoolDownModule.isEnabled()) {

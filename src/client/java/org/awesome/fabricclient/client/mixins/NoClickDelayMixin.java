@@ -3,6 +3,7 @@ package org.awesome.fabricclient.client.mixins;
 import net.minecraft.client.Minecraft;
 import org.awesome.fabricclient.client.module.Module;
 import org.awesome.fabricclient.client.module.ModuleManager;
+import org.awesome.fabricclient.client.module.modules.utility.NoClickDelay;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -21,7 +22,7 @@ public class NoClickDelayMixin {
     @Inject(method = "startAttack", at = @At("HEAD"))
     private void noClickDelay(CallbackInfoReturnable<Boolean> cir) {
         if(noClickDelayModule == null) {
-            noClickDelayModule = ModuleManager.getInstance().getModule("No Click Delay");
+            noClickDelayModule = ModuleManager.getInstance().getModule(NoClickDelay.class);
         }
 
         if(!noClickDelayModule.isEnabled()) {
