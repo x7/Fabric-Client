@@ -2,22 +2,21 @@ package org.awesome.fabricclient.client.utility;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Set;
+import java.util.*;
 
 public class PlayerUtility {
     public static Player getPlayer() {
@@ -111,5 +110,15 @@ public class PlayerUtility {
         );
 
         return swords.contains(playerHandHeldItem);
+    }
+
+    public static Map<Holder<MobEffect>, MobEffectInstance> getPlayerEffects() {
+        Player player = getPlayer();
+
+        if(player == null) {
+            return Collections.emptyMap();
+        }
+
+        return player.getActiveEffectsMap();
     }
 }
