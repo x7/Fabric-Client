@@ -7,11 +7,13 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import org.awesome.fabricclient.client.gui.ClickGui;
 import org.awesome.fabricclient.client.utility.MinecraftUtility;
+import org.awesome.fabricclient.client.utility.hud.HudRenderer;
 import org.awesome.fabricclient.client.utility.packets.PacketManager;
 import org.lwjgl.glfw.GLFW;
 
 public class FabricclientClient implements ClientModInitializer {
     private static boolean packetManagerInitialized = false;
+    private static boolean hudRendererInitalized = false;
     private static final KeyMapping OPEN_CLICK_GUI = KeyMappingHelper.registerKeyMapping(
             new KeyMapping("key.fabricclient.click_gui", GLFW.GLFW_KEY_RIGHT_SHIFT, KeyMapping.Category.MISC)
     );
@@ -31,6 +33,11 @@ public class FabricclientClient implements ClientModInitializer {
             if(!packetManagerInitialized && MinecraftUtility.getPacketListener() != null) {
                 PacketManager.init();
                 packetManagerInitialized = true;
+            }
+
+            if(!hudRendererInitalized) {
+                HudRenderer.initHudRenderer();
+                hudRendererInitalized = true;
             }
 
             while(OPEN_CLICK_GUI.consumeClick()) {
