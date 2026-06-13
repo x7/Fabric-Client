@@ -3,6 +3,7 @@ package org.awesome.fabricclient.client.module.modules.utility;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.Packet;
+import org.awesome.fabricclient.client.annotations.ModuleInfo;
 import org.awesome.fabricclient.client.annotations.RegisterModule;
 import org.awesome.fabricclient.client.enums.FakeLagEnum;
 import org.awesome.fabricclient.client.module.Category;
@@ -17,7 +18,8 @@ import java.util.concurrent.*;
 
 // TODO: Add static and pulse modes
 
-@RegisterModule(name = "Fake Lag", description = "Fake Lag", category = Category.UTILITY, active = true)
+@RegisterModule()
+@ModuleInfo(name = "Fake Lag", description = "Fake Lag", category = Category.UTILITY, active = true)
 public class FakeLag extends Module {
     private final SliderSetting inboundLag = addSetting(new SliderSetting("Inbound", "Inbound fake lag delay", 0, 0, 1000));
     private final SliderSetting outboundLag = addSetting(new SliderSetting("Outbound", "Outbound fake lag delay", 0, 0, 1000));

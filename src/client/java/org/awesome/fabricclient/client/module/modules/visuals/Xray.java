@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import org.awesome.fabricclient.client.annotations.ModuleInfo;
 import org.awesome.fabricclient.client.annotations.RegisterModule;
 import org.awesome.fabricclient.client.module.Category;
 import org.awesome.fabricclient.client.module.Module;
@@ -19,7 +20,8 @@ import org.awesome.fabricclient.client.utility.PlayerUtility;
 
 import java.util.Map;
 
-@RegisterModule(name = "Xray", description = "Xray for ores", category = Category.VISUALS, active = false)
+@RegisterModule()
+@ModuleInfo(name = "Xray", description = "Xray for ores", category = Category.VISUALS, active = false)
 public class Xray extends Module {
     private final SliderSetting maxChunks = addSetting(new SliderSetting("Max Chunks", "How many chunks to search for", 12, 1, 12));
 

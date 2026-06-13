@@ -3,6 +3,7 @@ package org.awesome.fabricclient.client.module;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.player.Player;
+import org.awesome.fabricclient.client.annotations.ModuleInfo;
 import org.awesome.fabricclient.client.annotations.RegisterModule;
 import org.awesome.fabricclient.client.module.settings.Setting;
 import org.awesome.fabricclient.client.utility.PlayerUtility;
@@ -24,10 +25,10 @@ public abstract class Module {
     private boolean isOutgoingPacketHandlerInitialized;
 
     public Module() {
-        RegisterModule annotation = this.getClass().getAnnotation(RegisterModule.class);
+        ModuleInfo annotation = this.getClass().getAnnotation(ModuleInfo.class);
 
         if(annotation == null) {
-            throw new IllegalStateException(this.getClass().getName() + " is missing @RegisterModule annotation");
+            throw new IllegalStateException(this.getClass().getName() + " is missing @ModuleInfo annotation");
         }
 
         this.name = annotation.name();

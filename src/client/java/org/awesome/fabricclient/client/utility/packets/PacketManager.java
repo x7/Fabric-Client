@@ -103,8 +103,6 @@ public class PacketManager {
             return;
         }
 
-        System.out.println(incomingListeners.size());
-
         incomingListeners.put(name, listener);
     }
 

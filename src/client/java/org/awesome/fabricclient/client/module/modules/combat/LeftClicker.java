@@ -7,6 +7,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
+import org.awesome.fabricclient.client.annotations.ModuleInfo;
 import org.awesome.fabricclient.client.annotations.RegisterModule;
 import org.awesome.fabricclient.client.module.Category;
 import org.awesome.fabricclient.client.module.Module;
@@ -18,7 +19,8 @@ import org.awesome.fabricclient.client.utility.PlayerUtility;
 import java.lang.reflect.Method;
 import java.util.concurrent.ThreadLocalRandom;
 
-@RegisterModule(name = "Left Clicker", description = "Automatically clicks for you", category = Category.COMBAT, active = true)
+@RegisterModule()
+@ModuleInfo(name = "Left Clicker", description = "Automatically clicks for you", category = Category.COMBAT, active = true)
 public class LeftClicker extends Module {
     private final RangeSliderSetting cps = addSetting(new RangeSliderSetting("CPS", "Clicks Per Second", 14, 16, 8, 20));
     private final BooleanSetting allowBreakingBlocks = addSetting(new BooleanSetting("Allow Breaking Blocks", "Disables clicking while breaking a block", false));

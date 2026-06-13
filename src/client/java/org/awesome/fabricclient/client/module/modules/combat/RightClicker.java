@@ -8,6 +8,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
+import org.awesome.fabricclient.client.annotations.ModuleInfo;
 import org.awesome.fabricclient.client.annotations.RegisterModule;
 import org.awesome.fabricclient.client.module.Category;
 import org.awesome.fabricclient.client.module.Module;
@@ -20,7 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-@RegisterModule(name = "Right Clicker", description = "Automatically right clicks for you", category = Category.COMBAT, active = true)
+@RegisterModule()
+@ModuleInfo(name = "Right Clicker", description = "Automatically right clicks for you", category = Category.COMBAT, active = true)
 public class RightClicker extends Module {
     private final RangeSliderSetting rps = addSetting(new RangeSliderSetting("RPS", "Right clicks per second", 14, 16, 8, 20));
     private final List<Item> disallowedItems = Arrays.asList(Items.BOW, Items.FISHING_ROD, Items.IRON_SWORD);

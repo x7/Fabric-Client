@@ -2,6 +2,7 @@ package org.awesome.fabricclient.client.module.modules.utility;
 
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.Packet;
+import org.awesome.fabricclient.client.annotations.ModuleInfo;
 import org.awesome.fabricclient.client.annotations.RegisterModule;
 import org.awesome.fabricclient.client.enums.BlinkEnum;
 import org.awesome.fabricclient.client.module.Category;
@@ -17,7 +18,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-@RegisterModule(name = "Blink", description = "Teleport yourself using real lag", category = Category.UTILITY, active = true)
+@RegisterModule()
+@ModuleInfo(name = "Blink", description = "Teleport yourself using real lag", category = Category.UTILITY, active = true)
 public class Blink extends Module {
     private final ModeSelectSetting mode = addSetting(new ModeSelectSetting("Direction", "Direction of blink", "In", "In", "Out"));
     private final SliderSetting duration = addSetting(new SliderSetting("Duration", "Duration of blink", 1, 1, 50));

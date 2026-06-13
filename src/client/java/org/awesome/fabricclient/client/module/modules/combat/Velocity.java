@@ -5,6 +5,7 @@ import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import org.awesome.fabricclient.client.annotations.ModuleInfo;
 import org.awesome.fabricclient.client.annotations.RegisterModule;
 import org.awesome.fabricclient.client.module.Category;
 import org.awesome.fabricclient.client.module.Module;
@@ -15,7 +16,8 @@ import org.awesome.fabricclient.client.utility.PlayerUtility;
 import org.awesome.fabricclient.client.utility.Utility;
 import org.awesome.fabricclient.client.utility.packets.PacketEvent;
 
-@RegisterModule(name = "Velocity", description = "Reduces the amount of knockback you take", category = Category.COMBAT, active = true)
+@RegisterModule()
+@ModuleInfo(name = "Velocity", description = "Reduces the amount of knockback you take", category = Category.COMBAT, active = true)
 public class Velocity extends Module {
     private final ModeSelectSetting modes = addSetting(new ModeSelectSetting("Mode", "Mode of velocity", "Normal", "Normal", "Reverse", "Jump"));
     private final SliderSetting horizontal = addSetting(new SliderSetting("Horizontal", "Horizontal Velocity", 100, 0, 100));

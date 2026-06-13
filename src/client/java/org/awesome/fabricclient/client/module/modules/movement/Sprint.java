@@ -7,6 +7,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import org.awesome.fabricclient.client.annotations.ModuleInfo;
 import org.awesome.fabricclient.client.annotations.RegisterModule;
 import org.awesome.fabricclient.client.module.Category;
 import org.awesome.fabricclient.client.module.Module;
@@ -17,7 +18,8 @@ import org.awesome.fabricclient.client.utility.Utility;
 
 import java.util.Map;
 
-@RegisterModule(name = "Sprint", description = "Automatically sprints for you", category = Category.MOVEMENT, active = true)
+@RegisterModule()
+@ModuleInfo(name = "Sprint", description = "Automatically sprints for you", category = Category.MOVEMENT, active = true)
 public class Sprint extends Module {
     public final ModeSelectSetting mode = addSetting(new ModeSelectSetting("Mode", "Sprint Mode", "Legit", "Legit", "Blatant"));
     public final BooleanSetting backwardsToggle = addSetting(new BooleanSetting("Backwards", "Enable sprinting backwards", false));

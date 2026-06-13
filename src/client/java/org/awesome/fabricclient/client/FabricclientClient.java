@@ -5,8 +5,10 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 import org.awesome.fabricclient.client.gui.ClickGui;
 import org.awesome.fabricclient.client.utility.MinecraftUtility;
+import org.awesome.fabricclient.client.utility.PlayerUtility;
 import org.awesome.fabricclient.client.utility.hud.HudRenderer;
 import org.awesome.fabricclient.client.utility.packets.PacketManager;
 import org.lwjgl.glfw.GLFW;
@@ -41,21 +43,24 @@ public class FabricclientClient implements ClientModInitializer {
             }
 
             while(OPEN_CLICK_GUI.consumeClick()) {
-                toggleClickGui(client);
+                toggleClickGui();
             }
         });
     }
 
-    private static void toggleClickGui(Minecraft client) {
-        if(client.player == null) {
+    private static void toggleClickGui() {
+        Minecraft minecraft = MinecraftUtility.getMinecraftClient();
+        Player player = PlayerUtility.getPlayer();
+
+        if(player == null) {
             return;
         }
 
-        if(client.screen instanceof ClickGui) {
-            client.setScreen(null);
+        if(minecraft.screen instanceof ClickGui) {
+            minecraft.setScreen(null);
             return;
         }
 
-        client.setScreen(new ClickGui());
+        minecraft.setScreen(new ClickGui());
     }
 }
