@@ -3,6 +3,8 @@ package org.awesome.fabricclient.client.utility;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.Connection;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.player.Player;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.concurrent.Executors;
@@ -41,5 +43,17 @@ public class MinecraftUtility {
 
     public static void runLater(Runnable callback, double delay) {
         scheduler.schedule(callback, ((long) delay * 1000), TimeUnit.MILLISECONDS);
+    }
+
+    public static MinecraftServer getMinecraftServer() {
+        Minecraft minecraft = getMinecraftClient();
+
+        if(minecraft.isSingleplayer()) {
+            return minecraft.getSingleplayerServer();
+        }
+
+        Player player = PlayerUtility.getPlayer();
+
+        return player.level().getServer();
     }
 }

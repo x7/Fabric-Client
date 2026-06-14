@@ -12,6 +12,7 @@ import org.awesome.fabricclient.client.module.settings.SliderSetting;
 import org.awesome.fabricclient.client.utility.MinecraftUtility;
 import org.awesome.fabricclient.client.utility.packets.PacketEvent;
 import org.awesome.fabricclient.client.utility.packets.PacketManager;
+import org.awesome.fabricclient.client.utility.packets.PacketUtilitys;
 
 import java.util.List;
 import java.util.concurrent.*;
@@ -67,12 +68,11 @@ public class FakeLag extends Module {
         scheduler.schedule(() -> {
             minecraft.execute(() -> {
                 if(fakeLagEnum == FakeLagEnum.INBOUND) {
-                    PacketManager.getIncomingChannelHandlerContext().fireChannelRead(packet);
+                    PacketUtilitys.sendPacketToClient(packet);
                     return;
                 }
 
-                ClientPacketListener clientPacketListener = MinecraftUtility.getPacketListener();
-                clientPacketListener.send(packet);
+                PacketUtilitys.sendPacketToServer(packet);
             });
         }, (fakeLagEnum == FakeLagEnum.INBOUND ? inboundLag.getValue() : outboundLag.getValue()), TimeUnit.MILLISECONDS);
     }

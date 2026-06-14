@@ -1,21 +1,40 @@
 package org.awesome.fabricclient.client.utility;
 
+import com.mojang.authlib.GameProfile;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntLists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ClientInformation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.awesome.fabricclient.client.utility.packets.PacketUtilitys;
 
+import java.awt.image.PackedColorModel;
 import java.util.*;
 
 public class PlayerUtility {
@@ -120,5 +139,54 @@ public class PlayerUtility {
         }
 
         return player.getActiveEffectsMap();
+    }
+
+    // returns the server player so it can be used to delete the clone later on
+    public static ServerPlayer spawnFakeClone() {
+        Player player = PlayerUtility.getPlayer();
+        MinecraftServer minecraftServer = MinecraftUtility.getMinecraftServer();
+        UUID uuid = UUID.randomUUID();
+
+        GameProfile gameProfile = new GameProfile(uuid, player.getPlainTextName());
+        ServerPlayer serverPlayer = new ServerPlayer(minecraftServer, minecraftServer.overworld(), gameProfile, ClientInformation.createDefault());
+
+        // Create fake connection cause minecraft sucks dick
+        serverPlayer.connection = new ServerGamePacketListenerImpl(
+                minecraftServer,
+                new Connection(PacketFlow.CLIENTBOUND),
+                serverPlayer,
+                CommonListenerCookie.createInitial(gameProfile, false) // true?
+        );
+
+        ClientboundPlayerInfoUpdatePacket clientboundPlayerInfoUpdatePacket = new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, serverPlayer);
+        PacketUtilitys.sendPacketToClient(clientboundPlayerInfoUpdatePacket);
+
+        ClientboundAddEntityPacket clientboundAddEntityPacket = new ClientboundAddEntityPacket(
+                serverPlayer.getId(),
+                uuid,
+                player.getX(),
+                player.getY(),
+                player.getZ(),
+                player.xRotO,
+                player.yRotO,
+                EntityType.PLAYER,
+                0,
+                player.getDeltaMovement(),
+                player.yHeadRot
+        );
+        PacketUtilitys.sendPacketToClient(clientboundAddEntityPacket);
+
+        return serverPlayer;
+    }
+
+    public static void deleteFakeClone(ServerPlayer serverPlayer) {
+        List<UUID> playersToRemove = new ArrayList<>();
+        playersToRemove.add(serverPlayer.getUUID());
+
+        ClientboundPlayerInfoRemovePacket clientboundPlayerInfoRemovePacket = new ClientboundPlayerInfoRemovePacket(playersToRemove);
+        PacketUtilitys.sendPacketToClient(clientboundPlayerInfoRemovePacket);
+
+        ClientboundRemoveEntitiesPacket clientboundRemoveEntitiesPacket = new ClientboundRemoveEntitiesPacket(serverPlayer.getId());
+        PacketUtilitys.sendPacketToClient(clientboundRemoveEntitiesPacket);
     }
 }

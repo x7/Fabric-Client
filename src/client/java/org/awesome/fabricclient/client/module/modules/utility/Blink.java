@@ -2,14 +2,17 @@ package org.awesome.fabricclient.client.module.modules.utility;
 
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.server.level.ServerPlayer;
 import org.awesome.fabricclient.client.annotations.ModuleInfo;
 import org.awesome.fabricclient.client.annotations.RegisterModule;
 import org.awesome.fabricclient.client.enums.BlinkEnum;
 import org.awesome.fabricclient.client.module.Category;
 import org.awesome.fabricclient.client.module.Module;
+import org.awesome.fabricclient.client.module.settings.BooleanSetting;
 import org.awesome.fabricclient.client.module.settings.ModeSelectSetting;
 import org.awesome.fabricclient.client.module.settings.SliderSetting;
 import org.awesome.fabricclient.client.utility.MinecraftUtility;
+import org.awesome.fabricclient.client.utility.PlayerUtility;
 import org.awesome.fabricclient.client.utility.packets.PacketEvent;
 import org.awesome.fabricclient.client.utility.packets.PacketManager;
 
@@ -23,9 +26,12 @@ import java.util.Map;
 public class Blink extends Module {
     private final ModeSelectSetting mode = addSetting(new ModeSelectSetting("Direction", "Direction of blink", "In", "In", "Out"));
     private final SliderSetting duration = addSetting(new SliderSetting("Duration", "Duration of blink", 1, 1, 50));
+    private final BooleanSetting spawnFakePlayer = addSetting(new BooleanSetting("Spawn Fake Clone", "Spawns a fake entity of your position before activating the module", false));
     private final Map<BlinkEnum, List<Packet<?>>> delayedPackets = new LinkedHashMap<>();
     private int tickCount = 0;
     private int secondsInitalized = 0;
+    private boolean spawnedFakePlayer = false;
+    private ServerPlayer spawnedFakePlayerInstance;
 
     public Blink() {
         super();
@@ -33,6 +39,11 @@ public class Blink extends Module {
 
     @Override
     public void onTickStart() {
+        if(spawnFakePlayer.getValue() && !spawnedFakePlayer) {
+            spawnedFakePlayerInstance = PlayerUtility.spawnFakeClone();
+            spawnedFakePlayer = true;
+        }
+
         tickCount++;
 
         if(tickCount < 20) {
@@ -73,6 +84,8 @@ public class Blink extends Module {
     public void onDisable() {
         tickCount = 0;
         secondsInitalized = 0;
+        spawnedFakePlayer = false;
+        PlayerUtility.deleteFakeClone(spawnedFakePlayerInstance);
         sendAllPackets();
     }
 
