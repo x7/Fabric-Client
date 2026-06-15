@@ -1,7 +1,6 @@
 package org.awesome.fabricclient.client.module.modules.utility;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.Packet;
 import org.awesome.fabricclient.client.annotations.ModuleInfo;
 import org.awesome.fabricclient.client.annotations.RegisterModule;
@@ -11,7 +10,6 @@ import org.awesome.fabricclient.client.module.Module;
 import org.awesome.fabricclient.client.module.settings.SliderSetting;
 import org.awesome.fabricclient.client.utility.MinecraftUtility;
 import org.awesome.fabricclient.client.utility.packets.PacketEvent;
-import org.awesome.fabricclient.client.utility.packets.PacketManager;
 import org.awesome.fabricclient.client.utility.packets.PacketUtilitys;
 
 import java.util.List;

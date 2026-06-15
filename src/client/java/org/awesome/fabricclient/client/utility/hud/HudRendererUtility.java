@@ -2,7 +2,6 @@ package org.awesome.fabricclient.client.utility.hud;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
