@@ -31,7 +31,7 @@ public class Blink extends Module {
     private int tickCount = 0;
     private int secondsInitalized = 0;
     private boolean spawnedFakePlayer = false;
-    private ServerPlayer spawnedFakePlayerInstance;
+    private int spawnedFakePlayerId;
 
     public Blink() {
         super();
@@ -40,7 +40,7 @@ public class Blink extends Module {
     @Override
     public void onTickStart() {
         if(spawnFakePlayer.getValue() && !spawnedFakePlayer) {
-            spawnedFakePlayerInstance = PlayerUtility.spawnFakeClone();
+            spawnedFakePlayerId = PlayerUtility.spawnFakeClone();
             spawnedFakePlayer = true;
         }
 
@@ -85,7 +85,7 @@ public class Blink extends Module {
         tickCount = 0;
         secondsInitalized = 0;
         spawnedFakePlayer = false;
-        PlayerUtility.deleteFakeClone(spawnedFakePlayerInstance);
+        PlayerUtility.deleteFakeClone(spawnedFakePlayerId);
         sendAllPackets();
     }
 

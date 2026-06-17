@@ -49,6 +49,7 @@ public class MinecraftUtility {
         Minecraft minecraft = getMinecraftClient();
 
         if(minecraft.isSingleplayer()) {
+            System.out.println("returned single player");
             return minecraft.getSingleplayerServer();
         }
 

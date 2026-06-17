@@ -3,6 +3,7 @@ package org.awesome.fabricclient.client.utility;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.Connection;
@@ -24,12 +25,15 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.awesome.fabricclient.client.utility.packets.PacketUtilitys;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 public class PlayerUtility {
@@ -136,28 +140,39 @@ public class PlayerUtility {
         return player.getActiveEffectsMap();
     }
 
-    // returns the server player so it can be used to delete the clone later on
-    public static ServerPlayer spawnFakeClone() {
+    public static int spawnFakeClone() {
         Player player = PlayerUtility.getPlayer();
-        MinecraftServer minecraftServer = MinecraftUtility.getMinecraftServer();
+        Minecraft minecraft = Minecraft.getInstance();
+
         UUID uuid = UUID.randomUUID();
+        int entityId = (int) (Math.random() * Integer.MAX_VALUE);
+        GameProfile gameProfile = new GameProfile(uuid, player.getGameProfile().name());
 
-        GameProfile gameProfile = new GameProfile(uuid, player.getPlainTextName());
-        ServerPlayer serverPlayer = new ServerPlayer(minecraftServer, minecraftServer.overworld(), gameProfile, ClientInformation.createDefault());
+        try {
+            ClientPacketListener connection = minecraft.getConnection();
+            Field field = ClientPacketListener.class.getDeclaredField("playerInfoMap");
+            field.setAccessible(true);
+            Map<UUID, PlayerInfo> playerInfoMap = (Map<UUID, PlayerInfo>) field.get(connection);
 
-        // Create fake connection cause minecraft sucks dick
-        serverPlayer.connection = new ServerGamePacketListenerImpl(
-                minecraftServer,
-                new Connection(PacketFlow.CLIENTBOUND),
-                serverPlayer,
-                CommonListenerCookie.createInitial(gameProfile, false) // true?
-        );
+            PlayerInfo fakeInfo = new PlayerInfo(new ClientboundPlayerInfoUpdatePacket.Entry(
+                    uuid,
+                    gameProfile,
+                    false,
+                    0,
+                    GameType.SURVIVAL,
+                    null,
+                    false,
+                    0,
+                    null
+            ).profile(), false);
 
-        ClientboundPlayerInfoUpdatePacket clientboundPlayerInfoUpdatePacket = new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, serverPlayer);
-        PacketUtilitys.sendPacketToClient(clientboundPlayerInfoUpdatePacket);
+            playerInfoMap.put(uuid, fakeInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        ClientboundAddEntityPacket clientboundAddEntityPacket = new ClientboundAddEntityPacket(
-                serverPlayer.getId(),
+        ClientboundAddEntityPacket addEntityPacket = new ClientboundAddEntityPacket(
+                entityId,
                 uuid,
                 player.getX(),
                 player.getY(),
@@ -169,19 +184,28 @@ public class PlayerUtility {
                 player.getDeltaMovement(),
                 player.yHeadRot
         );
-        PacketUtilitys.sendPacketToClient(clientboundAddEntityPacket);
+        PacketUtilitys.sendPacketToClient(addEntityPacket);
 
-        return serverPlayer;
+        return entityId;
     }
 
-    public static void deleteFakeClone(ServerPlayer serverPlayer) {
+    public static void deleteFakeClone(int entityId) {
+        Player player = PlayerUtility.getPlayer();
+        Level level = player.level();
+        Player player1 = (Player) level.getEntity(entityId);
+
+        if(player1 == null) {
+            System.out.println("null entity"); // impossible to be null if this gets called then I'm gay
+            return;
+        }
+
         List<UUID> playersToRemove = new ArrayList<>();
-        playersToRemove.add(serverPlayer.getUUID());
+        playersToRemove.add(player1.getUUID());
 
         ClientboundPlayerInfoRemovePacket clientboundPlayerInfoRemovePacket = new ClientboundPlayerInfoRemovePacket(playersToRemove);
         PacketUtilitys.sendPacketToClient(clientboundPlayerInfoRemovePacket);
 
-        ClientboundRemoveEntitiesPacket clientboundRemoveEntitiesPacket = new ClientboundRemoveEntitiesPacket(serverPlayer.getId());
+        ClientboundRemoveEntitiesPacket clientboundRemoveEntitiesPacket = new ClientboundRemoveEntitiesPacket(player1.getId());
         PacketUtilitys.sendPacketToClient(clientboundRemoveEntitiesPacket);
     }
 }
