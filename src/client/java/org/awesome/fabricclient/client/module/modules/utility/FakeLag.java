@@ -65,6 +65,7 @@ public class FakeLag extends Module {
 
         scheduler.schedule(() -> {
             minecraft.execute(() -> {
+                System.out.println("sent packet");
                 if(fakeLagEnum == FakeLagEnum.INBOUND) {
                     PacketUtilitys.sendPacketToClient(packet);
                     return;

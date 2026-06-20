@@ -42,19 +42,6 @@ public class MinecraftUtility {
     }
 
     public static void runLater(Runnable callback, double delay) {
-        scheduler.schedule(callback, ((long) delay * 1000), TimeUnit.MILLISECONDS);
-    }
-
-    public static MinecraftServer getMinecraftServer() {
-        Minecraft minecraft = getMinecraftClient();
-
-        if(minecraft.isSingleplayer()) {
-            System.out.println("returned single player");
-            return minecraft.getSingleplayerServer();
-        }
-
-        Player player = PlayerUtility.getPlayer();
-
-        return player.level().getServer();
+        scheduler.schedule(callback, (long) delay, TimeUnit.MILLISECONDS);
     }
 }
