@@ -16,6 +16,7 @@ import org.awesome.fabricclient.client.module.settings.RangeSliderSetting;
 import org.awesome.fabricclient.client.utility.MinecraftUtility;
 import org.awesome.fabricclient.client.utility.PlayerUtility;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +28,7 @@ public class RightClicker extends Module {
     private final RangeSliderSetting rps = addSetting(new RangeSliderSetting("RPS", "Right clicks per second", 14, 16, 8, 20));
     private final List<Item> disallowedItems = Arrays.asList(Items.BOW, Items.FISHING_ROD, Items.IRON_SWORD);
     private float tickAccumulator = 0f;
+    private Method startUseItemMethod;
 
     public RightClicker() {
         super();
@@ -78,12 +80,20 @@ public class RightClicker extends Module {
                 return;
             }
 
+            Minecraft minecraft = MinecraftUtility.getMinecraftClient();
+
+            if(startUseItemMethod == null) {
+                try {
+                    startUseItemMethod = minecraft.getClass().getDeclaredMethod("startUseItem");
+                    startUseItemMethod.setAccessible(true);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
             try {
-                Minecraft minecraft = MinecraftUtility.getMinecraftClient();
-                Method method = minecraft.getClass().getDeclaredMethod("startUseItem");
-                method.setAccessible(true);
-                method.invoke(minecraft);
-            } catch (Exception e) {
+                startUseItemMethod.invoke(minecraft);
+            } catch (InvocationTargetException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
 

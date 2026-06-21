@@ -16,6 +16,7 @@ import org.awesome.fabricclient.client.module.settings.RangeSliderSetting;
 import org.awesome.fabricclient.client.utility.MinecraftUtility;
 import org.awesome.fabricclient.client.utility.PlayerUtility;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -28,6 +29,7 @@ public class LeftClicker extends Module {
     private float tickAccumulator = 0f;
     private int totalClicks = 0; // Used for Exhaust Mode
     private boolean exhausted = false; // Used for Exhaust Mode
+    private static Method startAttackMethod;
 
     public LeftClicker() {
         super();
@@ -93,11 +95,18 @@ public class LeftClicker extends Module {
         Entity entity = PlayerUtility.getEntityPlayerLookingAt();
         if (entity != null) {
             Minecraft minecraft = MinecraftUtility.getMinecraftClient();
+            if(startAttackMethod == null) {
+                try {
+                    startAttackMethod = minecraft.getClass().getDeclaredMethod("startAttack");
+                    startAttackMethod.setAccessible(true);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
             try {
-                Method field = minecraft.getClass().getDeclaredMethod("startAttack");
-                field.setAccessible(true);
-                field.invoke(minecraft);
-            } catch (Exception e) {
+                startAttackMethod.invoke(minecraft);
+            } catch (InvocationTargetException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
 
@@ -109,10 +118,18 @@ public class LeftClicker extends Module {
         MinecraftUtility.getPacketListener().send(serverboundSwingPacket);
     }
 
+    private void performButterflyClick() {
+
+    }
+
+    private void performJitterClick() {
+
+    }
+
     private void shouldExhaust() {
         totalClicks++;
 
-        int randomNumber = ThreadLocalRandom.current().nextInt(25, 40);
+        int randomNumber = ThreadLocalRandom.current().nextInt(2500, 4000);
         if(totalClicks > randomNumber) {
             exhausted = true;
 
@@ -120,7 +137,7 @@ public class LeftClicker extends Module {
             MinecraftUtility.runLater(() -> {
                 exhausted = false;
                 totalClicks = 0;
-            }, randomSleepTime * 1000);
+            }, randomSleepTime);
         }
     }
 }
