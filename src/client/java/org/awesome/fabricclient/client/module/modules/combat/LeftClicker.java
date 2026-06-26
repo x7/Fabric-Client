@@ -137,7 +137,7 @@ public class LeftClicker extends Module {
             MinecraftUtility.runLater(() -> {
                 exhausted = false;
                 totalClicks = 0;
-            }, randomSleepTime);
+            }, randomSleepTime, false);
         }
     }
 }

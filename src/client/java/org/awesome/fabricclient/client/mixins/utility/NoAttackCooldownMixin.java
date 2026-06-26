@@ -1,4 +1,4 @@
-package org.awesome.fabricclient.client.mixins;
+package org.awesome.fabricclient.client.mixins.utility;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;

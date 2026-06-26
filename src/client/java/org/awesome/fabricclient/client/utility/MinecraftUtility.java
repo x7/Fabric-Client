@@ -41,7 +41,15 @@ public class MinecraftUtility {
         return GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
     }
 
-    public static void runLater(Runnable callback, double delay) {
-        scheduler.schedule(callback, (long) delay, TimeUnit.MILLISECONDS);
+    public static void runLater(Runnable callback, double delay, boolean mainThread) {
+        scheduler.schedule(() -> {
+            if(mainThread) {
+                Minecraft minecraft = getMinecraftClient();
+                minecraft.execute(callback);
+                return;
+            }
+
+            callback.run();
+        }, (long) delay, TimeUnit.MILLISECONDS);
     }
 }

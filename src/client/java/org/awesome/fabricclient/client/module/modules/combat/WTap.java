@@ -63,11 +63,11 @@ public class WTap extends Module {
         this.isWtapActive = true;
         int playersSwingTime = player.swingTime;
         if(waitForAttackCoolDown.getValue() && playersSwingTime > 0) {
-            MinecraftUtility.runLater(this::wtap, playersSwingTime * 50);
+            MinecraftUtility.runLater(this::wtap, playersSwingTime * 50, false);
             return;
         }
 
-        MinecraftUtility.runLater(this::wtap, delay.getValue()); // delay
+        MinecraftUtility.runLater(this::wtap, delay.getValue(), false); // delay
     }
 
     private void wtap() {
@@ -78,6 +78,6 @@ public class WTap extends Module {
         MinecraftUtility.runLater(() -> {
             options.keyUp.setDown(true);
             isWtapActive = false;
-        }, stopDuration.getValue()); // pause
+        }, stopDuration.getValue(), false); // pause
     }
 }

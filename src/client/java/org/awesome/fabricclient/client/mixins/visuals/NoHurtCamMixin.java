@@ -1,4 +1,4 @@
-package org.awesome.fabricclient.client.mixins;
+package org.awesome.fabricclient.client.mixins.visuals;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.GameRenderer;

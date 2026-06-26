@@ -12,7 +12,7 @@ import org.awesome.fabricclient.client.utility.PlayerUtility;
 import org.awesome.fabricclient.client.utility.packets.PacketEvent;
 
 @RegisterModule()
-@ModuleInfo(name = "Debug", description = "Print debug information about various features", category = Category.UTILITY, active = false)
+@ModuleInfo(name = "Debug", description = "Print debug information about various features", category = Category.UTILITY, active = true)
 public class Debug extends Module {
     public final BooleanSetting logIncomingPackets = addSetting(new BooleanSetting("Log Incoming Packets", "Logs incoming packets", false));
     public final BooleanSetting logOutgoingPackets = addSetting(new BooleanSetting("Log Outgoing Packets", "Logs outgoing packets", false));
@@ -28,6 +28,7 @@ public class Debug extends Module {
         }
 
         Component message = Component.literal("INC: " + packetEvent.getPacket().getClass().getSimpleName());
+        System.out.println(message);
 
         MinecraftUtility.getMinecraftClient().execute(() -> {
             PlayerUtility.sendPlayerMessage(message);
@@ -41,6 +42,7 @@ public class Debug extends Module {
         }
 
         Component message = Component.literal("OUT: " + packetEvent.getPacket().getClass().getSimpleName());
+        System.out.println(message);
 
         MinecraftUtility.getMinecraftClient().execute(() -> {
             PlayerUtility.sendPlayerMessage(message);

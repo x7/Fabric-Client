@@ -1,4 +1,4 @@
-package org.awesome.fabricclient.client.mixins;
+package org.awesome.fabricclient.client.mixins.utility;
 
 import net.minecraft.client.Minecraft;
 import org.awesome.fabricclient.client.module.Module;

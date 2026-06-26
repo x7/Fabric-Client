@@ -12,10 +12,10 @@
     "requireAnnotations": true
   },
   "mixins": [
-    "NoAttackCooldownMixin",
-    "NoClickDelayMixin",
-    "NoHurtCamMixin",
-    "NoPlaceDelayMixin",
-    "RemoveJumpDelayMixin"
+    "utility.NoAttackCooldownMixin",
+    "utility.NoClickDelayMixin",
+    "visuals.NoHurtCamMixin",
+    "utility.NoPlaceDelayMixin",
+    "movement.RemoveJumpDelayMixin"
   ]
 }

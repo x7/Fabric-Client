@@ -1,4 +1,4 @@
-package org.awesome.fabricclient.client.mixins;
+package org.awesome.fabricclient.client.mixins.movement;
 
 import net.minecraft.world.entity.LivingEntity;
 import org.awesome.fabricclient.client.module.Module;
