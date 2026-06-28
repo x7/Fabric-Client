@@ -3,12 +3,11 @@ package org.awesome.fabricclient.client.utility;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.Connection;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.entity.player.Player;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class MinecraftUtility {
@@ -41,8 +40,8 @@ public class MinecraftUtility {
         return GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
     }
 
-    public static void runLater(Runnable callback, double delay, boolean mainThread) {
-        scheduler.schedule(() -> {
+    public static ScheduledFuture<?> runLater(Runnable callback, double delay, boolean mainThread) {
+        return scheduler.schedule(() -> {
             if(mainThread) {
                 Minecraft minecraft = getMinecraftClient();
                 minecraft.execute(callback);
@@ -51,5 +50,13 @@ public class MinecraftUtility {
 
             callback.run();
         }, (long) delay, TimeUnit.MILLISECONDS);
+    }
+
+    public static void cancelTask(ScheduledFuture<?> scheduledFuture, boolean cancelIfRunning) {
+        if(scheduledFuture == null) {
+            return;
+        }
+
+        scheduledFuture.cancel(cancelIfRunning);
     }
 }

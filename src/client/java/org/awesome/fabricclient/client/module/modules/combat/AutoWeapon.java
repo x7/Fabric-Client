@@ -17,6 +17,7 @@ import org.awesome.fabricclient.client.utility.MinecraftUtility;
 import org.awesome.fabricclient.client.utility.PlayerUtility;
 
 import java.util.Set;
+import java.util.concurrent.ScheduledFuture;
 
 @RegisterModule()
 @ModuleInfo(name = "Auto Weapon", description = "Automatically equips your sword when hovering over an entity", category = Category.COMBAT, active = true)
@@ -28,6 +29,7 @@ public class AutoWeapon extends Module {
             Items.GOLDEN_SWORD, Items.DIAMOND_SWORD, Items.COPPER_SWORD,
             Items.NETHERITE_SWORD
     );
+    private ScheduledFuture<?> currentTask = null;
 
     public AutoWeapon() {
         super();
@@ -36,6 +38,7 @@ public class AutoWeapon extends Module {
     @Override
     public void onTickStart() {
         if(holdingLeftClick.getValue() && !MinecraftUtility.isLeftClickDown()) {
+            MinecraftUtility.cancelTask(currentTask, true);
             return;
         }
 
@@ -43,6 +46,7 @@ public class AutoWeapon extends Module {
         Entity entity = PlayerUtility.getEntityPlayerLookingAt();
 
         if(!(entity instanceof Player)) {
+            MinecraftUtility.cancelTask(currentTask, true);
             return;
         }
 
@@ -65,11 +69,12 @@ public class AutoWeapon extends Module {
         }
 
         if(slotToChangeTo == -1) {
+            MinecraftUtility.cancelTask(currentTask, true);
             return;
         }
 
         int finalSlotToChangeTo = slotToChangeTo;
-        MinecraftUtility.runLater(() -> {
+        currentTask = MinecraftUtility.runLater(() -> {
             inventory.setSelectedSlot(finalSlotToChangeTo);
         }, delay.getValue(), true);
     }
